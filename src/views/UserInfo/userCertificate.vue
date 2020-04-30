@@ -8,7 +8,7 @@
         <div class="getVerift-title">正在完成实名认证操作</div>
         <div class="getVerift-content">已经向尾号{{this.phone.substr(7)}}发送短信验证码</div>
         <div class="getVerift-verift">
-          <van-field type="digit" v-model="verifyCode" label="短信验证码" placeholder="请输入短信验证码"
+          <van-field maxlength="6" type="digit" v-model="verifyCode" label="短信验证码" placeholder="请输入短信验证码"
             :rules="[{ required: true, message: '请输入短信验证码'}]">
             <template #button>
               <van-button v-if="isShowSend" size="small" type="primary" button-type="info" native-type="button" @click="sendAuthCode" :disabled="isOK" >发送验证码</van-button>
@@ -39,6 +39,8 @@
             v-model="fileList1"
             :max-count="1"
             :after-read="afterReadEmblem"
+            :max-size = "7 * 1024 * 1024"
+            @oversize="oversize"
           />
         </div>
         <div class="item2">
@@ -46,6 +48,8 @@
             v-model="fileList2"
             :max-count="1"
             :after-read="afterReadFace"
+            :max-size = "7 * 1024 * 1024"
+            @oversize="oversize"
           />
         </div>
       </div>
@@ -92,8 +96,7 @@
 
 <script>
 import { getUrlParam } from "../../common/common.js";
-import { checkTokenAndSendMsg , authCode ,sendCodeAgain,OCRIdCard,saveUserIdCard ,startCheckFace ,authorizationState} from "../../request/api"
-import {Tabbar} from "vant";
+import { checkTokenAndSendMsg , checkSmsCodeDirectSale ,sendCodeAgain,OCRIdCard,saveUserIdCard ,startCheckFace ,authorizationState} from "../../request/api"
 
 export default {
   data() {
@@ -107,9 +110,6 @@ export default {
       IdNumCut:'',
       phone:'',
       phoneCut:'',
-      // src1: "http://iph.href.lu/500x400?text=国徽面",
-      // src2: "http://iph.href.lu/500x400?text=头像面",
-
       token:'',
       fileList1:[],
       fileList2:[],
@@ -128,76 +128,95 @@ export default {
     this.$store.commit('updateParam',getUrlParam())
     this.token = this.$store.state.token;
     console.log("this.$store.state.token",this.$store.state.token)
+    console.log("this.$store.state.id",this.$store.state.id)
     console.log(this.$store.state.managerId,this.$store.state.branchLoanId,this.$store.state.state,this.$store.state.id,this.$store.state.type,this.$store.state.clueId)
 
     this.getVerifyToken();
   },
   methods: {
+    //图片超过7M
+    oversize(){
+      this.$toast.fail("图片大小不能超过7M！")
+    },
     //人脸识别
     faceRecognize() {
-      let that = this;
-      const toast = this.$toast.loading({
-        duration: 0,
-        message: '加载中...',
-        forbidClick: true,
-        loadingType: 'spinner',
-      });
+      console.log("人脸识别id",this.$store.state.id)
 
-      var userIdCard = Object.assign(
-        {phone:this.phone},
-        {name:this.name},
-        {idNum:this.idNum},
-        {idCardFront:this.idCardUrlFace},
-        {idCardBack:this.idCardUrlEmblem}
+      if(this.idCardUrlFace != "" && this.idCardUrlEmblem !=""){
+        const toast = this.$toast.loading({
+          duration: 0,
+          message: '加载中...',
+          forbidClick: true,
+          loadingType: 'spinner',
+        });
 
-      )
-      var personState = Object.assign(
-        {name:this.name},
-        {idNumber:this.idNum}
-      )
-      //todo later
-      var userVo = Object.assign(
-        {name:this.name},
-        {idNo:this.idNum},
-        {from:'App'},
-        {state:this.$store.state.state},
-        {id:this.$store.state.id},
-        {managerId:this.$store.state.managerId},
-        {type:this.$store.state.type},
-        {clueId:this.$store.state.clueId},
-        {branchLoanId:this.$store.state.branchLoanId}
-      )
-      //todo later
-      //保存身份证正反面信息
-      saveUserIdCard(userIdCard).then(res => {
-        console.log(res.data.data)
-        if(res.data.data.stateCode === 1){
-          //人员签约状态
-          authorizationState(personState).then(res => {
-            console.log(res.data.data)
-            if(res.data.data.state == "00000"){
-              //人脸核身
-              startCheckFace(userVo).then(res => {
+        var userIdCard = Object.assign(
+          {phone:this.phone},
+          {name:this.name},
+          {idNum:this.idNum},
+          {idCardFront:this.idCardUrlFace},
+          {idCardBack:this.idCardUrlEmblem}
+
+        )
+        var personState = Object.assign(
+          {name:this.name},
+          {idNumber:this.idNum},
+          {phone:this.phone},
+        )
+        //todo later
+        var userVo = Object.assign(
+          {name:this.name},
+          {idNo:this.idNum},
+          {from:'App'},
+          {state:this.$store.state.state},
+          {id:this.$store.state.id},
+          {managerId:this.$store.state.managerId},
+          {type:this.$store.state.type},
+          {clueId:this.$store.state.clueId},
+          {branchLoanId:this.$store.state.branchLoanId}
+        )
+        console.log("userVo is====",userVo)
+        //todo later
+        //保存身份证正反面信息
+        saveUserIdCard(userIdCard).then(res => {
+          console.log(res.data.data)
+          if(res.data.data.stateCode === 1){
+            //人员签约状态
+            authorizationState(personState).then(res => {
+              console.log(res.data.data)
+              //未完成签约认证，去人脸核身 已签约为00000，未签约为20000
+              if(res.data.data.state == "20000"){
+                //人脸核身
+                startCheckFace(userVo).then(res => {
+                  toast.clear()
+                  this.scanFaceUrl = res.data.data;
+                  console.log(this.scanFaceUrl)
+                  //todo later
+                  window.location.href = this.scanFaceUrl;
+                })
+              }else{
                 toast.clear()
-                this.scanFaceUrl = res.data.data;
-                console.log(this.scanFaceUrl)
-                window.location.href = this.scanFaceUrl;
-              })
-            }else{
-              this.$router.push({
-                path:'/certificateResult',
-              })
+                this.$store.state.agreement = res.data.data.agreement;
+                this.$router.push({
+                  path:'/certificateResult',
+                })
 
-            }
-          })
+              }
+            })
 
-        }else{
-          this.$toast.fail('保存失败！')
-        }
-      })
+          }else{
+            this.$toast.fail('保存失败！')
+          }
+        })
 
-      //test
-      // this.$router.push({path:'/startCertificate'})
+        //test
+        // this.$router.push({path:'/startCertificate'})
+
+      }else{
+        this.$toast.fail("请上传身份证！");
+      }
+
+
 
     },
     //国徽面识别
@@ -213,9 +232,14 @@ export default {
       OCRIdCard(baseImgUrl).then(res => {
         toast.clear();
         if(res.data.data != ""){
-          this.$toast.success(res.data.msg);
           console.log(res.data.data)
-          this.idCardUrlEmblem = res.data.data.idCardUrl
+          if(res.data.data.userInfo.IdNum == ""){
+            this.$toast.success(res.data.msg);
+            this.idCardUrlEmblem = res.data.data.idCardUrl
+          }else{
+            this.$toast.fail("请上传国徽面！")
+          }
+
         }
         else{
           this.$toast.fail(res.data.msg)
@@ -236,14 +260,18 @@ export default {
       OCRIdCard(baseImgUrl).then(res => {
         toast.clear();
         if(res.data.data != ""){
-          this.$toast.success(res.data.msg);
           console.log(res.data.data)
-          this.IdNumber = res.data.data.userInfo.IdNum
+          if(res.data.data.userInfo.IdNum != ""){
+            this.$toast.success(res.data.msg);
+            this.IdNumber = res.data.data.userInfo.IdNum;
 
-          if(this.idNum === this.IdNumber){
-            this.idCardUrlFace = res.data.data.idCardUrl;
-          }else {
-            this.$toast.fail('身份证不一致！');
+            if(this.idNum === this.IdNumber){
+              this.idCardUrlFace = res.data.data.idCardUrl;
+            }else {
+              this.$toast.fail('身份证不一致！');
+            }
+          }else{
+            this.$toast.fail("请上传人像面！")
           }
 
         }
@@ -269,27 +297,29 @@ export default {
     //验证码确认
     authCodeOK() {
       var code = Object.assign(
-        {phone:this.phone},
+        // {phone:this.phone},
+        {token:this.token},
         {verifyCode:this.verifyCode}
       )
       console.log(code)
-      authCode(code).then(res => {
-        console.log(res.data)
+      checkSmsCodeDirectSale(code).then(res => {
+        console.log("获取三要素",res.data)
         if(res.data.state === 'Y' && res.data.data.stateCode === 1){
           this.$toast.success('验证成功！')
           this.name = res.data.data.name;
           this.idNum = res.data.data.idNum;
           this.phone = res.data.data.phone;
-          this.id = res.data.data.id;
-          this.$store.state.id = res.data.data.id;
 
           this.IdNumCut = this.idNum.substr(0, 3) + '************' + this.idNum.substr(this.idNum.length - 4);
           this.phoneCut = '*******' + this.phone.substr(7);
+
+          this.isShowVerify = false;
         }else{
           this.$toast.fail('验证失败！')
         }
+
       })
-      this.isShowVerify = false;
+
     },
     //验证token并发短信
     getVerifyToken(){
@@ -303,9 +333,9 @@ export default {
             this.phone = res.data.data.phone;
             this.$toast.success("短信发送成功！")
           }else {
-            this.$toast(res.data.msg)
             //todo later
             this.isOK = true
+            this.$toast(res.data.msg)
 
           }
         }else{
@@ -318,44 +348,44 @@ export default {
     },
 
 
-    imgClick1: function() {
-      document.getElementById("uploadFile1").click();
-    },
-    imgClick2: function() {
-      document.getElementById("uploadFile2").click();
-    },
-    select1() {
-      let that = this;
-      var localFile = document.getElementById("uploadFile1").files[0];
-      var reader = new FileReader();
-      var content;
-      reader.onload = function(event) {
-        content = event.target.result;
-        that.src1 = content;
-      };
-      reader.onerror = function(event) {
-        alert("error");
-      };
-      content = reader.readAsDataURL(localFile, "UTF-8");
-      var sss = document.getElementById("uploadFile").value;
-      console.log(sss);
-    },
-    select2() {
-      let that = this;
-      var localFile = document.getElementById("uploadFile2").files[0];
-      var reader = new FileReader();
-      var content;
-      reader.onload = function(event) {
-        content = event.target.result;
-        that.src2 = content;
-      };
-      reader.onerror = function(event) {
-        alert("error");
-      };
-      content = reader.readAsDataURL(localFile, "UTF-8");
-      var sss = document.getElementById("uploadFile").value;
-      console.log(sss);
-    }
+    // imgClick1: function() {
+    //   document.getElementById("uploadFile1").click();
+    // },
+    // imgClick2: function() {
+    //   document.getElementById("uploadFile2").click();
+    // },
+    // select1() {
+    //   let that = this;
+    //   var localFile = document.getElementById("uploadFile1").files[0];
+    //   var reader = new FileReader();
+    //   var content;
+    //   reader.onload = function(event) {
+    //     content = event.target.result;
+    //     that.src1 = content;
+    //   };
+    //   reader.onerror = function(event) {
+    //     alert("error");
+    //   };
+    //   content = reader.readAsDataURL(localFile, "UTF-8");
+    //   var sss = document.getElementById("uploadFile").value;
+    //   console.log(sss);
+    // },
+    // select2() {
+    //   let that = this;
+    //   var localFile = document.getElementById("uploadFile2").files[0];
+    //   var reader = new FileReader();
+    //   var content;
+    //   reader.onload = function(event) {
+    //     content = event.target.result;
+    //     that.src2 = content;
+    //   };
+    //   reader.onerror = function(event) {
+    //     alert("error");
+    //   };
+    //   content = reader.readAsDataURL(localFile, "UTF-8");
+    //   var sss = document.getElementById("uploadFile").value;
+    //   console.log(sss);
+    // }
 
 };
 </script>

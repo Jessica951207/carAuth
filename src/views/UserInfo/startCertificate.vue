@@ -1,14 +1,17 @@
 <template>
   <div>
-    <div class="tempDiv">人脸核身结果界面</div>
-    <div v-if="code == '0'" style="text-align: center">
-      <van-icon name="checked" color="#1989fa" size="50" />
-      <p> {{alertText}} </p>
+
+    <div class="result-icon">
+      <div v-if="code == '0'" style="text-align: center">
+        <van-icon name="checked" color="#1989fa" size="70" />
+        <p> {{alertText}} </p>
+      </div>
+      <div v-else style="text-align: center">
+        <van-icon name="clear" color="#fd0000" size="70"/>
+        <p>{{alertText}} </p>
+      </div>
     </div>
-    <div v-else style="text-align: center">
-      <van-icon name="clear" color="#fd0000" size="50"/>
-      <p>{{alertText}} </p>
-    </div>
+
     <div style="margin:20px" v-show="signShow">
       <van-button
         style="margin-top:25px"
@@ -78,13 +81,14 @@ export default {
     this.code = getUrlParamFirst("code")
     this.newSignature = getUrlParamFirst("newSignature")
     this.liveRate = getUrlParamFirst("liveRate")
-    console.log('*************************',getUrlParamFirst("orderNo"),getUrlParamForKey("code"))
+    console.log('*************************',this.orderNo, this.code,this.newSignature,this.liveRate)
 
     if(this.code === '0' && this.liveRate != undefined){
-      // this.alertText = '人脸核身成功,正在验证...';
+      this.alertText = '人脸核身成功,正在验证...';
       //todo later
       this.checkSignApi();
     }else {
+      this.signShow = false;
       this.alertText = '人脸核身失败'
     }
 
@@ -133,9 +137,12 @@ export default {
   text-align: center;
   line-height: 100px;
 }
+.result-icon{
+  margin-top: 70px;
+}
 .alertContent {
   margin: 5%;
-  background: #c3c3c3;
+  background: #efefef;
   padding: 3%;
   font-size: 14px;
 }

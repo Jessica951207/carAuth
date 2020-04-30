@@ -94,7 +94,6 @@ export default {
       info:'',
       state:'',
       feedModel:'',
-      four:'',
       riskShow:false,
       regularShow:false,
       complexShow:false,
@@ -111,6 +110,15 @@ export default {
     this.type = this.$store.state.type;
     this.id = this.$store.state.id;
     this.state = this.$store.state.state;
+
+    if (this.state == 2) {
+      //客户经理
+      this.feedModel = 1;
+    }
+    else if(this.state == 3){
+      //代理人
+      this.feedModel = 2;
+    }
 
     this.getUserInfo();
 
@@ -223,17 +231,19 @@ export default {
           {name:this.name},
           {idNum:this.idNum},
           {phone:this.phone},
+          {id:this.id},
         )
 
         //四合一接口
-        this.four = Object.assign(
+        var four = Object.assign(
           {name:this.name},
           {idNum:this.idNum},
           {phone:this.phone},
           {feedModel:this.feedModel},
+          {clueId:this.$store.state.clueId}
         )
 
-        fourInOneAgain(this.four).then(res =>{
+        fourInOneAgain(four).then(res =>{
           console.log(res.data.data)
           toast.clear();
           //风险评估
@@ -286,7 +296,7 @@ export default {
       var clueId = Object.assign({clueId:this.$store.state.clueId})
       if(this.riskResult == '查询成功' && this.complexNetResult == '查询成功' && this.regularLoanResult == '查询成功' && this.phoneOResult == '查询成功'){
         amountFiler(clueId).then(res => {
-          toast.clear()
+          toast.clear();
           console.log(res.data.data)
           if(res.data.data.code == 0){
             this.$router.push({
@@ -294,10 +304,13 @@ export default {
             })
             this.$store.state.ScreenResult = res.data.data.result
           }else{
-            this.$toast.fail("接口状态失败！")
+            this.$toast.fail("初筛结果查询失败！")
           }
 
         })
+      }else{
+        toast.clear();
+        this.$toast.fail("查询失败，请重新查询！")
       }
     },
     onSubmit() {
@@ -314,7 +327,7 @@ export default {
     font-size: 14px;
     display: flex;
     /*justify-content: space-between;*/
-    align-airs: center;
+    align-items: center;
     border-bottom: 1px solid #ebedf0;
 
   }

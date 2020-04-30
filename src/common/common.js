@@ -2,6 +2,7 @@
 export const dateFormat = (dateStr, fmt = 'yyyy-MM-dd hh:mm') => {
     if (!dateStr) return
     let date = new Date(dateStr)
+  console.log(date)
     let o = {
       'M+': date.getMonth() + 1,
       'd+': date.getDate(),
@@ -177,7 +178,7 @@ export const getUrlParamFirst = (key) =>{
   return cs[key];
 }
 
-//截取第一个链接全部
+//截取第一个链接全部参数
   export const getUrlParam = () =>{
   var url = window.location.href; //获取当前url
   console.log(url);

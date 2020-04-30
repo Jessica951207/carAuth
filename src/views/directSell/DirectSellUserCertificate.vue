@@ -19,6 +19,8 @@
             v-model="fileList1"
             :max-count="1"
             :after-read="afterReadEmblem"
+            :max-size = "7 * 1024 * 1024"
+            @oversize="oversize"
           />
         </div>
         <!--人像-->
@@ -27,6 +29,8 @@
             v-model="fileList2"
             :max-count="1"
             :after-read="afterReadFace"
+            :max-size = "7 * 1024 * 1024"
+            @oversize="oversize"
           />
         </div>
       </div>
@@ -37,10 +41,10 @@
         </div>
       </van-overlay>
       <div class="getVerift-title">客户基本信息</div>
-      <van-field readonly v-model="name" label="姓名：" />
-      <van-field readonly v-model="IdNumCut" label="身份证号：" />
+      <van-field v-model="name" label="姓名：" />
+      <van-field v-model="IdNumCut" label="身份证号：" />
       <van-field v-model="phone" label="手机号" placeholder="请填写手机号码" :rules="[{validator:phoneValidator, required: true, message: '请填写正确的手机号'}]"/>
-      <van-field v-model="sms" center clearable label="短信验证码" placeholder="请输入短信验证码">
+      <van-field maxlength="6" v-model="sms" center clearable label="短信验证码" placeholder="请输入短信验证码">
         <template #button>
           <van-button v-if="isShowSend" size="small" type="primary" button-type="info" native-type="button" @click="sendCode" >发送验证码</van-button>
           <van-button v-else size="small" type="primary" button-type="info" native-type="button">
@@ -86,10 +90,13 @@ export default {
     };
   },
   mounted() {
+
+    console.log(getUrlParam())
+    this.$store.commit('updateParam',getUrlParam())
+
     this.state = this.$store.state.state;
     this.managerId = this.$store.state.managerId;
-    console.log(this.managerId)
-
+    // console.log("this.managerId:",this.managerId);
     if(this.state == 2){
       this.feedModel = 1
     }
@@ -100,9 +107,13 @@ export default {
     console.log("state=" + this.state);
   },
   methods: {
+    //图片超过7M
+    oversize(){
+      this.$toast.fail("图片大小不能超过7M！")
+    },
     //校验
     phoneValidator(val){
-      return /^1[3456789]\d{9}/.test(val);
+      return /^1[3456789]\d{9}$/.test(val);
     },
     //国徽面识别
     afterReadEmblem(file){
@@ -153,10 +164,7 @@ export default {
 
     //发送验证码
     sendCode(){
-      if(this.phone == ""){
-        this.isShowSend = true;
-        this.$toast.fail('手机号为空')
-      }else{
+      if(/^1[3456789]\d{9}$/.test(this.phone)){
         this.isShowSend = false;
         var phoneNum = this.phone
         sendCodeAgain(phoneNum).then(res => {
@@ -166,6 +174,9 @@ export default {
             this.$toast.fail('短信发送失败！')
           }
         })
+      }else{
+        this.isShowSend = true;
+        this.$toast.fail('手机号码格式不正确')
       }
 
     },
@@ -195,13 +206,14 @@ export default {
               {idCardBack:this.idCardUrlEmblem},
               {clueId:this.$store.state.clueId},
               {managerId:this.$store.state.managerId},
-              {feedModel:this.$store.state.feedModel}
+              {feedModel:this.feedModel}
             )
-            console.log("userIdCard",userIdCard)
+            console.log("保存五要素参数：",userIdCard)
             //保存五要素信息
             saveUserInfoFive(userIdCard).then(res => {
               console.log(res.data.data)
               if(res.data.data.stateCode === 1){
+                this.$store.state.id = res.data.data.id;
                 var userVo = Object.assign(
                   {name:this.name},
                   {idNo:this.IdNumber},
@@ -216,17 +228,23 @@ export default {
 
                 var stateInfo = Object.assign(
                   {name:this.name},
-                  {IdNumber:this.IdNumber},
+                  {idNumber:this.IdNumber},
+                  {phone:this.phone}
                 )
+
+                console.log("stateInfo",stateInfo)
                 //人员签约状态
                 authorizationState(stateInfo).then(res => {
                     console.log(res.data.data)
                     if(res.data.data.state == '00000'){
+                      this.$store.state.agreement = res.data.data.agreement;
+
                       //客户经理验证
                       var userInfo = Object.assign(
                         {phone:this.phone},
                         {name:this.name},
-                        {idNum:this.idNum},
+                        {idNum:this.IdNumber},
+                        {clueId:this.$store.state.clueId},
                       )
                       isAccessed(userInfo).then(res => {
                         console.log(res.data.data.stateCode)

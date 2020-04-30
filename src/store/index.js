@@ -24,11 +24,12 @@ const store = new Vuex.Store({
 
     price:'',
 
-    carBrand:'',
+    carBrandName:'',
     checkOrder:'',
     agreement:'',
     ScreenResult:'',
     managerName:'',
+    managerTel:'',
 
 
 
@@ -42,6 +43,8 @@ const store = new Vuex.Store({
     state:'',
     branchLoanId:'',
     token:'',
+    serialNumber:''
+
 
   },
   //commit
@@ -56,7 +59,6 @@ const store = new Vuex.Store({
       state.state = param["state"];
       state.token = param["token"];
     }
-
   },
   // same as computed
   getters:{

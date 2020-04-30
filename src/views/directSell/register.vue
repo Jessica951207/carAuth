@@ -19,7 +19,7 @@
       <van-field v-model="agentName" name="agentName" label="真实姓名:" placeholder="请填写真实姓名" :rules="[{ required: true, message: '请填写真实姓名' }]"/>
       <van-field v-model="userPhone" name="userPhone" label="手机号:" placeholder="请填写手机号" :rules="[{validator:phoneValidator, required: true, message: '请填写正确的手机号'}]"/>
 
-      <van-field v-model="verifyCode" name="verifyCode"  center clearable label="短信验证码:" placeholder="请输入短信验证码" :rules="[{ required: true, message: '请输入验证码'}]">
+      <van-field maxlength="6" v-model="verifyCode" name="verifyCode"  center clearable label="短信验证码:" placeholder="请输入短信验证码" :rules="[{ required: true, message: '请输入验证码'}]">
         <template #button>
           <van-button v-if="isShowSend" size="small" type="primary" button-type="info" native-type="button" @click="getValidateCode" >发送验证码</van-button>
           <van-button v-else size="small" type="primary" button-type="info" native-type="button">
@@ -76,7 +76,7 @@ export default {
   methods: {
     //校验
     phoneValidator(val){
-      return /^1[3456789]\d{9}/.test(val);
+      return /^1[3456789]\d{9}$/.test(val);
     },
     pwdValidator(val){
       return /^[a-zA-Z\d_]{6,}$/.test(val);
@@ -139,12 +139,18 @@ export default {
     },
     //获取手机要验证码
     getValidateCode(){
-      var phone = Object.assign({phone:this.userPhone})
-      validateCode(phone).then(res => {
-        console.log(res.data);
-        this.$toast.success(res.data.msg);
-      })
-      this.isShowSend = false;
+      if(/^1[3456789]\d{9}$/.test(this.userPhone)){
+        var phone = Object.assign({phone:this.userPhone})
+        validateCode(phone).then(res => {
+          console.log(res.data);
+          this.$toast.success(res.data.msg);
+        })
+        this.isShowSend = false;
+      }else{
+        this.isShowSend = true;
+        this.$toast.fail("手机号码合适不正确！")
+      }
+
     },
     //注册成为推荐人
     onSubmit(values) {
@@ -153,7 +159,7 @@ export default {
       tobeReferee(refeeInfo).then(res => {
         console.log(res.data.data);
         this.$toast(res.data.data.msg);
-        this.$router.push('/')
+        this.$router.go(-1)
 
       })
     },

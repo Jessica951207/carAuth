@@ -68,7 +68,7 @@
 
 <script>
   import { getUrlParam } from "../../common/common.js";
-  import { searchInvestor , searchChannel ,submitPieces,updateClue ,updateLoanStatus} from '../../request/api'
+  import { searchInvestor , searchChannel ,submitPieces,updateClue ,updateLoanStatus } from '../../request/api'
     export default {
       data(){
           return{
@@ -85,7 +85,13 @@
             clueId:'',
             type:'',
             managerId:'',
-            bankCode:''
+            state:'',
+            feedModel:'',
+            bankCode:'',
+            loanId:'',
+            bankName:"",
+            orderState:''
+
           }
       },
       mounted(){
@@ -93,6 +99,16 @@
         this.managerId = this.$store.state.managerId;
         this.clueId = this.$store.state.clueId;
         this.type = this.$store.state.type;
+        this.state = this.$store.state.state;
+
+        if (this.state == 2) {
+          //客户经理
+          this.feedModel = 1;
+        }
+        else if(this.state == 3){
+          //代理人
+          this.feedModel = 2;
+        }
           // this.managerId = getUrlParam("managerId")
           // this.type = getUrlParam("type")
           // this.clueId = this.$store.state.clueId
@@ -101,7 +117,7 @@
 
       },
       methods:{
-          //提交进件
+        //提交进件
         onSubmit(values){
           const toast = this.$toast.loading({
             duration: 0,
@@ -117,7 +133,7 @@
           )
           var caseInfo = Object.assign(
             {managerId:this.$store.state.managerId},
-            {feedModel:this.$store.state.state},
+            {feedModel:this.feedModel},
             {clueId:this.clueId},
           )
 
@@ -129,20 +145,48 @@
               console.log('更新成功！')
               //进件
               submitPieces(caseInfo).then(res => {
-                toast.clear()
+                toast.clear();
                 console.log(res.data.data)
                 if(res.data.data.stateCode == 1){
-                  this.$toast.success("进件成功!")
-                  this.$router.push("/")
+                  this.$toast.success("进件成功!");
 
-                  this.updateState()
+                  this.loanId = res.data.data.loanId;
+                  this.bankCode = res.data.data.bankCode;
+                  this.bankName = res.data.data.bankName;
+                  this.orderState = res.data.data.orderState;
+
+                  /**
+                   * js 跟APP交互
+                   * */
+                  var AppData = Object.assign(
+                    {loanID:this.loanId},
+                    {bankCode:this.bankCode},
+                    {bankName:this.bankName},
+                    {orderState:this.orderState},
+                  );
+                  var u = navigator.userAgent,
+                    app = navigator.appVersion;
+                  var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //android终端或者uc浏览器
+                  var isiOS = !!u.match(/(i[^;]+;( U;)? CPU.+Mac OS X)/); //ios终端
+                  if(isiOS){
+                    window.webkit.messageHandlers.deliveryClueID.postMessage(AppData);
+                  }else if(isAndroid){
+                    android.deliveryClueID(JSON.stringify(AppData));
+                  }
+                  /**
+                   * js 跟APP交互
+                   * */
+
+                  // this.updateState()
                 }else{
+                  toast.clear()
                   this.$toast.fail("进件失败！")
                 }
               })
 
             }else{
               console.log('更新失败！')
+              toast.clear()
             }
           })
 
@@ -163,7 +207,7 @@
         getInvestor(){
           var managerId = Object.assign({managerId:this.managerId},)
           searchInvestor(managerId).then(res => {
-            console.log(res.data.data)
+            console.log("资方返回",res.data.data)
             var investorArray = res.data.data;
             investorArray.map((cur,index) => {
               this.investorColumns.push(cur.ORGNAME);
@@ -178,13 +222,19 @@
             {managerId:this.managerId},
             {bankCode:this.bankCode},
             {type:this.type},
+            {state:this.state},
           )
+          console.log("渠道：",channel);
           searchChannel(channel).then(res => {
             console.log(res.data.data)
+            this.channelColumns = [];
+            this.channelIdArray = [];
+
             var channelArray = res.data.data;
+
             channelArray.map((cur,index) =>{
-              this.channelColumns.push(cur.DEALERNAME)
-              this.channelIdArray.push(cur.DEALERID)
+              this.channelColumns.push(cur.D_NAME)
+              this.channelIdArray.push(cur.D_ID)
             })
           })
         },
@@ -200,6 +250,8 @@
           this.bankCode = this.investorId;
           console.log("this.bankCode",this.bankCode)
           this.getChannel();
+          this.channel = ""
+
         },
         investorCancel() {
           this.investorShowPicker = false;

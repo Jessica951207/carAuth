@@ -26,6 +26,8 @@
             :max-count="1"
             :after-read="afterRead"
             :style="{ height: '100%', width: '100%'}"
+            :max-size = "7 * 1024 * 1024"
+            @oversize="oversize"
           />
         </div>
 
@@ -83,19 +85,23 @@
         </ul>
         <div class="shootAlert-img">
           <div class="shootAlert-item">
-            <van-image src="http://iph.href.lu/500x400?text=标准样式" />
+            <!--<van-image src="http://iph.href.lu/500x400?text=标准样式" />-->
+            <img src="../assets/example_icon_01.png" alt="标准样式" class="imgStyle">
             <span>标准</span>
           </div>
           <div class="shootAlert-item">
-            <van-image src="http://iph.href.lu/500x400?text=边框缺失" />
+            <!--<van-image src="http://iph.href.lu/500x400?text=边框缺失" />-->
+            <img src="../assets/example_icon_02.png" alt="边框缺失" class="imgStyle">
             <span>边框缺失</span>
           </div>
           <div class="shootAlert-item">
-            <van-image src="http://iph.href.lu/500x400?text=照片模糊" />
+            <!--<van-image src="http://iph.href.lu/500x400?text=照片模糊" />-->
+            <img src="../assets/example_icon_03.png" alt="照片模糊" class="imgStyle">
             <span>照片模糊</span>
           </div>
           <div class="shootAlert-item">
-            <van-image src="http://iph.href.lu/500x400?text=闪光强烈" />
+            <!--<van-image src="http://iph.href.lu/500x400?text=闪光强烈" />-->
+            <img src="../assets/example_icon_04.png" alt="闪光强烈" class="imgStyle">
             <span>闪光强烈</span>
           </div>
         </div>
@@ -103,7 +109,7 @@
     </van-overlay>
 
     <!--手动填写popup-->
-    <van-popup v-model="showChangeChassisID" position="bottom">
+    <van-popup v-model="showChangeChassisID" position="top">
       <div class="changeChassisID">
         <span class="changeChassisID-title">手工录入</span>
         <van-form @submit="HFClick">
@@ -180,23 +186,28 @@ export default {
   mounted() {
     console.log(getUrlParam())
     this.$store.commit('updateParam',getUrlParam())
-    console.log("his.$store.state.managerId",this.$store.state.managerId);
+    console.log("this.$store.state.managerId",this.$store.state.managerId);
+    this.state = this.$store.state.state
     this.getProvinceCity();
   },
-  watch:{
-    "city":{
-      deep:true,
-      handler:function (newValue,oldValue) {
-        console.log('newValue is',newValue,"oldValue is",oldValue)
-        if(newValue == ""){
-          this.notOpenCity = true;
-        }else{
-          this.notOpenCity = false;
-        }
-      }
-    },
-  },
+  // watch:{
+  //   "city":{
+  //     deep:true,
+  //     handler:function (newValue,oldValue) {
+  //       console.log('newValue is',newValue,"oldValue is",oldValue)
+  //       if(newValue == ""){
+  //         this.notOpenCity = true;
+  //       }else{
+  //         this.notOpenCity = false;
+  //       }
+  //     }
+  //   },
+  // },
   methods: {
+    //图片超过7M
+    oversize(){
+      this.$toast.fail("图片大小不能超过7M！")
+    },
     //校验
     vinValidator(val){
       return /^[A-HJ-NP-Z0-9]{17}$/.test(val);
@@ -220,11 +231,6 @@ export default {
           this.$store.state.licenseUrl = res.data.data.licenseUrl;
           this.$router.push({
             path:'/carInfoOCR',
-            // query:{
-            //   state:this.state,
-            //   managerId:this.managerId,
-            //   branchLoanId:this.branchLoanId
-            // }
           })
         }else{
           this.$toast.fail(res.data.msg)
@@ -402,14 +408,16 @@ export default {
 
       this.showAddress = false;
       /**
-       * 只可定位，不可选择城市
+       * 查看可选择的城市列表
        * */
       // this.notOpenCity = true;
+
       //获取城市区域
      this.getCityZone()
     },
     hideProCityList(){
       this.showAddress = false;
+      this.checkIsOpenCity();
       // this.notOpenCity = true;
       // this.checkIsSelectOpenCity()
     },
@@ -419,20 +427,18 @@ export default {
     },
     //获取城市区域
     getCityZone(){
-      searchCityZone(this.cityCode).then(res => {
+      var cityId = Object.assign({cityId:this.cityCode})
+      searchCityZone(cityId).then(res => {
         console.log(res.data.data);
         this.$store.state.cityZone = res.data.data.zone;
       })
     },
     //手工录入
     HFClick() {
-      let that = this;
-      console.log(that.hFchassisID)
+      console.log(this.hFchassisID)
+      this.$store.state.FrontInfo.Vin = this.hFchassisID;
       this.$router.push({
-        path:"/carInfoHandFill",
-        query:{
-          hFVin:that.hFchassisID,
-        }
+        path:"/carInfoOCR"
       });
     },
 
@@ -476,6 +482,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+  .imgStyle{
+    width: 100%;
+  }
 .currentCity {
   padding-left: 15px;
   padding-right: 15px;

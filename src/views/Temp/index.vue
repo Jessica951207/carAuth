@@ -10,6 +10,7 @@
       <van-button style="margin-top:25px" round block type="info" @click="four">车辆评估单一需求</van-button>
       <van-button style="margin-top:25px" round block type="info" @click="five">实名认证单一需求</van-button>
       <van-button style="margin-top:25px" round block type="info" @click="six">结果查询</van-button>
+      <van-button style="margin-top:25px" round block type="info" @click="seven">悬浮</van-button>
     </div>
   </div>
 </template>
@@ -20,6 +21,9 @@ export default {
     return {};
   },
   methods: {
+    seven(){
+      this.$router.push('/hover')
+    },
     //初筛
     one() {
       this.$router.push({

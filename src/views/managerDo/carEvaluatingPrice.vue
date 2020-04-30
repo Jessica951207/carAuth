@@ -79,16 +79,22 @@ export default {
           }
         });
       }
-      else if (this.state == 2) {
+      else if (this.state == 2 || this.state == 3) {
         this.$router.push({
           path: "/DirectSellUserCertificate",
+          query: {
+            state: this.state,
+            managerId:this.managerId,
+            type:this.$store.state.type,
+            id:this.$store.state.id,
+            clueId:this.$store.state.clueId,
+            branchLoanId:this.$store.state.branchLoanId,
+            serialNumber:this.$store.state.serialNumber,
+          }
+
         });
       }
-      else if (this.state == 3) {
-        this.$router.push({
-          path: "/DirectSellUserCertificate",
-        });
-      }
+
 
     }
   }

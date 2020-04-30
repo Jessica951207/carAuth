@@ -7,7 +7,7 @@
       <van-nav-bar title="实名认证" left-text="返回" left-arrow @click-left="onClickLeft" />
     </template>-->
     <!-- 进度栏 -->
-    <div v-show="state != 4" class="step">
+    <div v-show="state != 5" class="step">
       <van-steps :active="1">
         <van-step>车辆认证</van-step>
         <van-step>实名认证</van-step>
@@ -104,7 +104,8 @@
         <div style="margin-top:20px">
           <van-icon name="clear" size="70px" color="#ee0a24" />
         </div>
-        <van-button style="margin-top:25px" round block type="info" @click="failBtn">客户暂未完成实名认证，请通知客户尽快完成实名认证</van-button>
+        <p>客户暂未完成实名认证 <br>请通知客户尽快完成实名认证</p>
+        <van-button style="margin-top:25px" round block type="info" @click="failBtn">确  定</van-button>
       </div>
     </van-popup>
 
@@ -176,6 +177,7 @@ export default {
         {phone:this.phone},
         {name:this.name},
         {idNum:this.idNum},
+        {clueId:this.$store.state.clueId},
       )
       isAccessed(userInfo).then(res => {
         console.log(res.data.data.stateCode)
@@ -199,10 +201,17 @@ export default {
       console.log(res)
       // .then(res => {
         if(res.data.state === 'Y' && res.data.data.stateCode === 1){
-
           console.log('token------:',res.data.data.token)
-          let TOKEN = res.data.data.token.replace("+","%2B");
+
+          // var str = "eyJwaG9uZSI6IjE4MzY4NzI2MDY4IiwibmFtZSI6Iuael+mVv+W3pyIsInRpbWUiOjE1ODc3MjYwNTcwNTUsImlkTnVtIjoiMzMwMzgxMTk5NzA5MTQ0NzE3In0=";
+          // var val = str.replace(eval(/\+/g),"%2B");
+          // console.log("token:",val)
+
+          let Token = res.data.data.token;
+          let TOKEN = Token.replace(eval(/\+/g),"%2B");;
+
           console.log('转换后的token：',TOKEN)
+
           this.copyUrl = window.location.origin +
             (process.env.NODE_ENV === "development"
               ? "/#/userCertificate?token=" + TOKEN + '&id='+ this.id + '&clueId='+ this.clueId + '&state=' + this.state + '&managerId=' + this.managerId + '&type=' + this.type + '&branchLoanId' +  this.branchLoanId
@@ -274,7 +283,7 @@ export default {
       return false;
     },
     phoneValidator(val){
-      return /^1[3456789]\d{9}/.test(val);
+      return /^1[3456789]\d{9}$/.test(val);
     },
     onFailed(errorInfo) {
       console.log('failed', errorInfo);
@@ -290,20 +299,25 @@ export default {
 
 
     hasDone() {
-      //更新状态
-      var update = Object.assign(
-        {state:'A030'},
-        {clueId:this.$store.state.clueId}
-      )
-      updateLoanStatus(update).then(res => {
-        if(res.data.data.stateCode === 1){
-          this.$router.push({
-            path: "/screening",
-          });
-        }else{
-          this.$toast.fail('状态保存失败！')
-        }
-      })
+      if(this.state == 5){
+        this.$router.push('/certificateResult')
+      }else{
+        //更新状态
+        var update = Object.assign(
+          {state:'A030'},
+          {clueId:this.$store.state.clueId}
+        )
+        updateLoanStatus(update).then(res => {
+          if(res.data.data.stateCode === 1){
+            this.$router.push({
+              path: "/screening",
+            });
+          }else{
+            this.$toast.fail('状态保存失败！')
+          }
+        })
+      }
+
 
     },
     //未完成验证

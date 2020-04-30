@@ -1,11 +1,24 @@
 <template>
-  <div class="pdf">
+  <div class="pdf" v-show="fileType === 'pdf'">
     <pdf
       ref="pdf"
       :src="pdfUrl"
+      :page="currentPage"
+      @num-pages="pageCount=$event"
+      @page-loaded="currentPage=$event"
       @loaded="loadPdfHandler">
     </pdf>
+
+    <div class="bottom-btn" >
+      <p class="arrow">
+        <span @click="changePdfPage(0)" class="turn" :class="{grey: currentPage==1}">上一页</span>
+        {{currentPage}} / {{pageCount}}
+        <span @click="changePdfPage(1)" class="turn" :class="{grey: currentPage==pageCount}">下一页</span>
+      </p>
+      <van-button round block type="info" @click="nextStep">下一步</van-button>
+    </div>
   </div>
+
 </template>
 
 <script type='text/ecmascript-6'>
@@ -16,7 +29,10 @@ export default {
   },
   data() {
     return {
-      pdfUrl:'',
+      pdfUrl:'',// pdf文件地址
+      currentPage: 0, // pdf文件页码
+      pageCount: 0, // pdf文件总页数
+      fileType: 'pdf', // 文件类型
 　 } 
   },
   mounted(){
@@ -29,18 +45,44 @@ export default {
     console.log('pdf链接鸭',this.$store.state.agreement)
     this.pdfUrl = this.$store.state.agreement;
 
-    // this.pdfUrl = 'http://zlhjweb.5gzvip.idcfengye.com/fileManage/getFile?type=pdf&fileCode=91b4f823d7c7469ba7d76eb32f21cb96';
-    //  this.pdfUrl = 'http://file.dakawengu.com/file/2018-05-29/20180527-tianfeng.pdf'
-    // window.open(this.pdfUrl)
 
   },
   methods:{
-    loadPdfHandler(){
-      this.$toast.clear()
+    // 改变PDF页码,val传过来区分上一页下一页的值,0上一页,1下一页
+    changePdfPage (val) {
+      // console.log(val)
+      if (val === 0 && this.currentPage > 1) {
+        this.currentPage--
+        // console.log(this.currentPage)
+      }
+      if (val === 1 && this.currentPage < this.pageCount) {
+        this.currentPage++
+        // console.log(this.currentPage)
+      }
+    },
+    loadPdfHandler(e){
+      this.$toast.clear();
+      this.currentPage = 1 // 加载的时候先加载第一页
+    },
+    nextStep(){
+      this.$router.push('/certificateResult')
     }
   }
 };
 </script>
 
-<style>
+<style scoped>
+  .pdf{
+    position: relative;
+  }
+  .bottom-btn{
+    position: fixed;
+    width: 80%;
+    bottom: 0;
+    left: 10%;
+    margin: 5% auto;
+  }
+.arrow{
+  text-align: center;
+}
 </style>

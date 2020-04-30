@@ -4,11 +4,15 @@
 
 const path = require('path')
 
-// var baseUrl = 'http://10.1.3.76:8060'
-//development
-// var baseUrl = 'http://10.1.3.34:8060'
-//test
-var baseUrl = 'http://192.168.88.62:8080'
+//dev  Environment
+// var baseUrl = 'http://10.1.3.35:8080'
+var baseUrl = 'http://10.1.3.34:8060'
+
+// sit Environment
+// var baseUrl = 'http://192.168.88.62:8080'
+
+// test Environment
+// var baseUrl = 'http://192.168.90.101:8080'
 
 module.exports = {
   dev: {

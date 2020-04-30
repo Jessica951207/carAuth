@@ -8,6 +8,7 @@
     <div>
       <van-form @submit="onSubmit">
         <van-field
+          readonly
           show-word-limit
           name="vin"
           v-model="vin"
@@ -105,7 +106,7 @@
       </van-overlay>
     </div>
 
-    <van-popup v-model="showChangeChassisID" position="bottom">
+    <van-popup v-model="showChangeChassisID" position="top">
       <div class="changeChassisID">
         <span class="changeChassisID-title">手工录入</span>
         <van-form @submit="HFClick">
@@ -124,9 +125,8 @@
 
 <script>
 import { dateFormat } from "../../common/common.js";
-import { checkCarModel } from "../../request/api";
-import { saveCarInfo } from "../../request/api";
-import { assessCarValue , updateLoanStatus } from "../../request/api";
+import { checkCarModel , saveCarInfo } from "../../request/api";
+import { assessCarValue , updateLoanStatus ,amountCalculate ,searchCarInfo ,searchCityZone } from "../../request/api";
 
 export default {
   data() {
@@ -163,7 +163,8 @@ export default {
       brandName:'',
       seriesNameArray:[],
       seriesName:'',
-      managerId:''
+      managerId:'',
+      clueId:'',
     };
   },
 
@@ -172,11 +173,62 @@ export default {
     this.state = this.$store.state.state;
     this.managerId = this.$store.state.managerId;
     this.branchLoanId = this.$store.state.branchLoanId;
+    this.clueId = this.$store.state.clueId;
 
-    this.assignVin();
-    this.getCarModel();
+    if (this.state == 2) {
+      //客户经理
+      this.feedModel = 1;
+    }
+    else if(this.state == 3){
+      //代理人
+      this.feedModel = 2;
+    }
+
+    if(this.clueId != ""){
+      this.assignCarInfo();
+    }else{
+      this.assignVin();
+      this.getCarModel();
+    }
+
   },
   methods: {
+    //clueId不为空则时从search界面跳转过来，给页面初始赋值
+    assignCarInfo(){
+      var ClueId = Object.assign({clueId:this.clueId})
+      searchCarInfo(ClueId).then(res => {
+        console.log(res.data.data)
+        this.$store.state.cityCode = res.data.data.clueInfo.cityId;
+        this.$store.state.provinceCode = res.data.data.clueInfo.provinceId;
+        console.log("cityCode",this.$store.state.cityCode,this.$store.state.provinceCode)
+
+        this.vin = res.data.data.carLicenseInfo.vin;
+        this.engineNo = res.data.data.carLicenseInfo.engineNo;
+        this.plateNo = res.data.data.carLicenseInfo.plateNo;
+        this.registerDate = res.data.data.carLicenseInfo.registerDate;
+        this.owner = res.data.data.carLicenseInfo.owner;
+        this.mileage = res.data.data.carLicenseInfo.mileage;
+        this.modelName = res.data.data.carLicenseInfo.modelName;
+        this.modelId = res.data.data.carLicenseInfo.model - 11000000000;
+        this.series = res.data.data.carLicenseInfo.series;
+        this.seriesName = res.data.data.carLicenseInfo.seriesName;
+        this.brandName = res.data.data.carLicenseInfo.brandName;
+        this.brandId = res.data.data.carLicenseInfo.brand - 900000000;
+
+
+        //获取城市区域
+        this.getCityZone();
+
+      })
+    },
+    //获取城市区域
+    getCityZone(){
+      var cityId = Object.assign({cityId:this.$store.state.cityCode})
+      searchCityZone(cityId).then(res => {
+        console.log(res.data.data);
+        this.$store.state.cityZone = res.data.data.zone;
+      })
+    },
     //检验
     mileValidator(val){
       return /^[1-9]\d*$/.test(val);
@@ -186,26 +238,42 @@ export default {
     },
     //赋值车架号
     assignVin(){
-      this.vin = this.$route.query.hFVin
+      this.vin = this.$store.state.FrontInfo.Vin;
+      this.hFchassisID = this.$store.state.FrontInfo.Vin;
+      //获取汽车型号列表
+      this.getCarModel();
     },
     //获取汽车型号
     getCarModel(){
+      this.columns = [];
+      this.modelIdArray = [];
+      this.brandIdArray = [];
+      this.seriesArray = [];
+      this.brandNameArray = [];
+      this.seriesNameArray = [];
+
       var Vin = this.vin;
       checkCarModel(Vin).then(res => {
         console.log('modelInfo is :',res.data.data.modelInfo)
+        if(res.data.data.status == 1){
+          var modelInfoArray = res.data.data.modelInfo;
+          modelInfoArray.map((cur,index) => {
+            this.columns.push(cur.modelName)
+            this.modelIdArray.push(cur.modelId)
+            this.brandIdArray.push(cur.brandId)
+            this.seriesArray.push(cur.seriesId);
+            this.brandNameArray.push(cur.brandName);
+            this.seriesNameArray.push(cur.seriesName);
+          })
+        }else{
+          this.$toast.fail("车架号不合法！")
+        }
 
-        var modelInfoArray = res.data.data.modelInfo;
-        modelInfoArray.map((cur,index) => {
-          this.columns.push(cur.modelName)
-          this.modelIdArray.push(cur.modelId)
-          this.brandIdArray.push(cur.brandId)
-          this.seriesArray.push(cur.seriesId);
-          this.brandNameArray.push(cur.brandName);
-          this.seriesNameArray.push(cur.seriesName);
-        })
+
 
       })
     },
+    //选择汽车型号
     onConfirm(value) {
       this.modelName = value;
       this.modelId = this.modelIdArray[this.columns.indexOf(value)];
@@ -239,10 +307,11 @@ export default {
         {brandName:this.brandName},
         {seriesName:this.seriesName},
         {branchLoanId:this.branchLoanId},
-        {feedModel:this.feedModel},
         {managerId:this.managerId},
+        {clueId: this.$store.state.clueId},
+        {applyNum:this.$store.state.serialNumber},
+        {feedModel:this.feedModel}
       )
-      console.log(carInfoData)
 
       //保存汽车信息
       saveCarInfo(carInfoData).then(res => {
@@ -316,8 +385,10 @@ export default {
     },
     //手工录入
     HFClick() {
-      let that = this
-      this.showChangeChassisID = true;
+      this.showChangeChassisID = false;
+      this.$store.state.FrontInfo.Vin = this.hFchassisID;
+      console.log(this.hFchassisID);
+      this.assignVin()
 
     },
   }

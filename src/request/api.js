@@ -20,7 +20,7 @@ export function searchCityZone(cityId) {
   return request({
     method:'post',
     url:'zlhj_interface/rateScreen/queryCityZone',
-    data:{cityId:cityId}
+    data:cityId
   })
 }
 //OCR识别行驶证
@@ -96,6 +96,14 @@ export function checkTokenAndSendMsg(token) {
     method:'post',
     url:'zlhj_interface/rateScreen/checkTokenAndSendMsg',
     data:{token:token}
+  })
+}
+//验证码确认接口
+export function checkSmsCodeDirectSale(code) {
+  return request({
+    method:'post',
+    url:'zlhj_interface/rateScreen/checkSmsCodeDirectSale',
+    data:code
   })
 }
 //验证码确认接口
@@ -229,7 +237,6 @@ export function searchChannel(channel) {
   })
 }
 //提交进件
-//todo later
 export function submitPieces(subInfo) {
   return request({
     method: 'post',
@@ -390,5 +397,30 @@ export function QueryResult(param) {
     method: 'post',
     url:'/zlhj_interface/completeScreen/queryResult',
     data:param
+  })
+}
+//根据clueId查询车辆信息
+export function searchCarInfo(ClueId) {
+  return request({
+    method: 'post',
+    url:'/zlhj_interface/carinfo/searchRateScreenCarInfo',
+    data:ClueId
+  })
+}
+
+//重新进件按钮
+export function listAgain(BranchLoanId) {
+  return request({
+    method: 'post',
+    url:'/zlhj_interface/completeScreen/saveInfoToApply',
+    data:BranchLoanId
+  })
+}
+//结果查询菜单
+export function getMenu(BranchLoanId) {
+  return request({
+    method: 'post',
+    url:'/zlhj_interface/rateScreen/searchUserPermission',
+    data:BranchLoanId
   })
 }

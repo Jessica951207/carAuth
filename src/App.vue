@@ -5,12 +5,22 @@
     <!--</keep-alive>-->
 
     <router-view/>
+    <!--<hover/>-->
   </div>
 </template>
 
 <script>
+  import hover from './views/Temp/hover'
   export default {
     name: 'App',
+    data() {
+      return {
+      };
+    },
+    // components:{
+    //    hover
+    // },
+
     created(){
       //在页面加载时读取sessionStorage里的状态信息
       if (sessionStorage.getItem("store") ) {
@@ -59,5 +69,11 @@
   }
   .license{
     text-align: center;
+  }
+  .van-field--error .van-field__control, .van-field--error .van-field__control::placeholder{
+    color: #969799!important;
+  }
+  .van-field--error .van-field__control, .van-field--error .van-field__control::-webkit-input-placeholder{
+    color: #969799!important;
   }
 </style>

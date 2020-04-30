@@ -35,7 +35,8 @@ export default {
           isAccredit:'个人信息查询授权书',
           clueId:'',
           state:'',
-          showBtn:true
+          showBtn:true,
+          agreement:''
         }
     },
   mounted(){
@@ -69,7 +70,10 @@ export default {
     },
       //保存实名认证标志位
     saveRealNameSuccess(){
-      var id = Object.assign({id:this.$store.state.id})
+      var id = Object.assign(
+        {id:this.$store.state.id},
+        {managerId:this.$store.state.managerId},
+        )
       saveRealName(id).then(res => {
         console.log(res.data.data)
         if(res.data.data.stateCode === 0) {
@@ -87,13 +91,14 @@ export default {
         this.name = res.data.data.name
         this.IDcard = res.data.data.idNum
         this.phone = res.data.data.phone
-        this.clueId = res.data.data.clueId
-        this.$store.state.clueId = res.data.data.clueId
 
-        console.log("this.clueId",this.clueId)
+        if(this.state == 5){
+          this.$store.state.agreement = res.data.data.agreement;
+          console.log("this.agreement",this.$store.state.agreement)
+        }
 
         //更新状态
-        if(res.data.data.clueId !='' && res.data.data.clueId != 0 && res.data.data.clueId != undefined && res.data.data.clueId != null){
+        if(this.state != 5){
           var update = Object.assign(
             {state:'A030'},
             {clueId:this.clueId}

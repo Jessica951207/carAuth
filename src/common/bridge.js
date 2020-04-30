@@ -45,3 +45,5 @@ function setupWebViewJavascriptBridge (callback) {
       }
     
     }
+
+

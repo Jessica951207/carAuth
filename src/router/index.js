@@ -27,11 +27,13 @@ import directSell from '@/components/directSell.vue'
 import search from '../views/Search/search'
 //temp临时
 import temp from '../views/Temp/index.vue'
+import hover from '../views/Temp/hover'
 
 //直销
 import carModel from '../views/directSell/carModel'
 import register from '../views/directSell/register'
 import zhuanXiangDai from '../views/directSell/zhuanXiangDai'
+import pushSuccess from '../views/directSell/pushSuccess'
 //直销实名认证
 import DirectSellUserCertificate from '../views/directSell/DirectSellUserCertificate'
 import directSellScreening from '../views/directSell/directSellScreening'
@@ -46,6 +48,11 @@ export default new Router({
       path: '/',
       name: 'temp',
       component: temp,
+    },
+    {
+      path: '/hover',
+      name: 'hover',
+      component: hover,
     },
     {
       path: '/index',
@@ -160,6 +167,11 @@ export default new Router({
       path: '/pdf',
       name: 'pdf',
       component: pdf,
+    },
+    {
+      path: '/pushSuccess',
+      name: 'pushSuccess',
+      component: pushSuccess,
     },
 
   ]

@@ -26,8 +26,8 @@
           is-link
           readonly
           clickable
-          v-model="carBrand"
-          name="carBrand"
+          v-model="carBrandName"
+          name="carBrandName"
           label="车辆品牌:"
           placeholder="请选择车辆品牌"
           @click="toCarModel"
@@ -48,7 +48,7 @@
 
         <van-field v-model="mainPhone" name="mainPhone" label="手机号:" placeholder="请填写手机号" :rules="[{validator:phoneValidator, required: true, message: '请填写正确的手机号' }]"/>
 
-        <van-field v-model="validateCode" name="validateCode" center clearable label="短信验证码:" placeholder="请输入短信验证码" :rules="[{ required: true, message: '请输入短信验证码' }]">
+        <van-field  maxlength="6" v-model="validateCode" name="validateCode" center clearable label="短信验证码:" placeholder="请输入短信验证码" :rules="[{ required: true, message: '请输入短信验证码' }]">
           <template #button>
             <van-button v-if="isShowSend" size="small" type="primary" button-type="info" native-type="button" @click="getValidateCode" >发送验证码</van-button>
             <van-button v-else size="small" type="primary" button-type="info" native-type="button">
@@ -113,6 +113,36 @@
 
     <!--是否进行初筛-->
     <van-popup v-model="onShowNext" position="bottom">
+
+    <template v-if="state == 2">
+      <div class="submitResult">
+
+        <div style="text-align: left;">
+          您的专属汽车金融专家：
+          <div style="margin-top: 0px; height: 40px;line-height: 40px; display: flex;justify-content: space-between">
+            <div style="display: flex">
+              <van-icon class="managerInfo-icon" size="20" name="manager" color="#20CE43"  />
+              <span>{{this.managerName}}</span>
+            </div>
+
+            <div style="display: flex">
+              <van-icon class="managerInfo-icon"  size="20" name="phone" color="#20CE43" />
+              <a :href="'tel:' + this.managerTel" style="color: #000000">{{this.managerTel}}</a>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px">
+          <van-icon name="checked" size="70px" color="#20CE43" />
+        </div>
+        <div class="list-header">是否想要进行初筛获取额度</div>
+        <div class="bottomBtn">
+          <van-button style="width:45%" round block type="info" @click="noNeed">不需要</van-button>
+          <van-button style="width:45%" round block type="info" @click="goOn">继续</van-button>
+        </div>
+      </div>
+    </template>
+    <template v-else>
       <div class="submitResult">
         <div style="margin-top:20px">
           <van-icon name="checked" size="70px" color="#20CE43" />
@@ -123,6 +153,8 @@
           <van-button style="width:45%" round block type="info" @click="goOn">继续</van-button>
         </div>
       </div>
+    </template>
+
     </van-popup>
    
     <div @click="onApplyBtn" class="Bottom-Btn"></div>
@@ -173,7 +205,7 @@ export default {
       city: "",
       businessProvince:'',
       businessCity:'',
-      carBrand: "",
+      carBrandName: "",
       remark1: "",
       loanAmount: "",
       mainPhone: "",
@@ -586,10 +618,19 @@ export default {
         "福特",
         "雪佛兰",
       ],
+
+      oftenBrandIndex:'',
       oftenBrand:[],
       allBrandList:[],
+
       brandLists:[],
-      bigManager:''
+      brandIdList:[],
+      brandIndex:'',
+      carBrand:'',
+      bigManager:'',
+      managerTel:'',
+      managerName:'',
+
     };
   },
   // beforeRouteEnter(to,from,next){
@@ -603,9 +644,11 @@ export default {
   //   next();
   // },
   mounted() {
-    this.state = this.$store.state.state
-    this.managerId = this.$store.state.managerId
-    this.branchLoanId = this.$store.state.branchLoanId
+    this.state = this.$store.state.state;
+    this.managerId = this.$store.state.managerId;
+    this.branchLoanId = this.$store.state.branchLoanId;
+    this.managerTel = this.$store.state.managerTel;
+    this.managerName = this.$store.state.managerName;
     console.log("state=" + this.state);
     //客户经理
     if(this.state == 2){
@@ -621,11 +664,11 @@ export default {
 
   },
   // watch:{
-  //   "$store.state.carBrand":{
+  //   "$store.state.carBrandName":{
   //     deep:true,
   //     handler:function (newValue,oldValue) {
   //       console.log("*****************",newValue,oldValue)
-  //       this.carBrand = this.$store.state.carBrand;
+  //       this.carBrandName = this.$store.state.carBrandName;
   //     }
   //   }
   //
@@ -640,7 +683,7 @@ export default {
       return /^[0-9]*$/.test(val)
     },
     phoneValidator(val){
-      return /^1[3456789]\d{9}/.test(val);
+      return /^1[3456789]\d{9}$/.test(val);
     },
     //选中车辆所在地
     onSelectCarLocation(carLoc){
@@ -667,12 +710,18 @@ export default {
     },
     //获取手机号验证码
     getValidateCode(){
-      var phone = Object.assign({phone:this.mainPhone})
-      validateCode(phone).then(res => {
-        console.log(res.data);
-        this.$toast(res.data.msg);
-      })
-      this.isShowSend = false
+      if(/^1[3456789]\d{9}$/.test(this.mainPhone)){
+        var phone = Object.assign({phone:this.mainPhone})
+        validateCode(phone).then(res => {
+          console.log(res.data);
+          this.$toast(res.data.msg);
+        })
+        this.isShowSend = false
+      }else{
+        this.isShowSend = true;
+        this.$toast.fail("手机号码合适不正确！")
+      }
+
     },
     //提交
     onSubmit(values){
@@ -693,6 +742,7 @@ export default {
         {feedModel:this.feedModel},
         {customerManagerId:this.managerId},
         {customerManagerName:this.$store.state.managerName},
+        {carBrand:this.carBrand},
 
       )
       console.log('loanInfo',loanInfo)
@@ -704,10 +754,14 @@ export default {
         this.onShowNext = true;
         console.log("result is",this.result)
 
-        // if(this.feedModel == 1){
-          this.$store.state.branchLoanId = this.result;
-          this.branchLoanId = this.result;
-        // }
+        this.$store.state.branchLoanId = this.result["branchLoanId"];
+        this.$store.state.serialNumber = this.result["serialNumber"];
+        this.branchLoanId = this.result;
+        console.log("serialNumber:",this.$store.state.serialNumber,"branchLoanId:",this.$store.state.branchLoanId)
+
+        if(this.feedModel == 1){
+          this.sendWechat();
+        }
         // else if(this.feedModel == 2){
         //   var result = this.result
         //   setTimeout(()=>{
@@ -739,9 +793,6 @@ export default {
       // });
     },
     goOn() {
-      // if(this.feedModel == 1){
-        // this.$store.state.branchLoanId = this.result;
-        // this.branchLoanId = this.result;
         this.$router.push({
           path: "/index",
           query:{
@@ -753,59 +804,40 @@ export default {
             branchLoanId:this.$store.state.branchLoanId,
           }
         });
-        // }
-        // else if(this.feedModel == 2){
-        // this.$router.push({
-        //   path: "/index",
-        //   query:{
-        //     state: this.$store.state.state,
-        //     managerId:this.$store.state.managerId,
-        //     type:this.$store.state.type,
-        //     id:this.$store.state.id,
-        //     clueId:this.$store.state.clueId,
-        //     branchLoanId:this.$store.state.branchLoanId,
-        //   }
-        // });
 
-        // var result = this.result
-        //   loanId(result).then(res => {
-        //     this.branchLoanId = res.data.data;
-        //     this.$store.state.branchLoanId = res.data.data;
-        //     console.log("branchLoanId",this.branchLoanId)
-        //
-        //   })
-        // }
 
     },
     //不需要
     noNeed(){
-      this.onShowNext = false
+      this.onShowNext = false;
+      this.$router.push('/pushSuccess')
       //微信推送
-      if(this.feedModel == 1){
-        this.bigManager = this.$store.state.managerId;
-        this.sendWechat();
-      }else if(this.feedModel == 2){
-        var userId = Object.assign({userId:this.managerId})
-        seachMan(userId).then(res => {
-          console.log(res.data.data);
-          if(res.data.data != ""){
-            this.bigManager = res.data.data.coreId;
-            this.sendWechat();
-          }
-        })
-      }
+      // if(this.feedModel == 1){
+      //   this.bigManager = this.$store.state.managerId;
+      //   this.sendWechat();
+      // }else if(this.feedModel == 2){
+      //   var userId = Object.assign({userId:this.managerId})
+      //   seachMan(userId).then(res => {
+      //     console.log(res.data.data);
+      //     if(res.data.data != ""){
+      //       this.bigManager = res.data.data.coreId;
+      //       this.sendWechat();
+      //     }
+      //   })
+      // }
     },
     //微信推送
     sendWechat(){
       var wxInfo = Object.assign(
         {branchLoanId:this.$store.state.branchLoanId},
         {type:1},
-        {managerId:this.bigManager}
+        {managerId:this.$store.state.managerId}
       )
       wechat(wxInfo).then(res => {
         console.log(res.data.data)
         if (res.data.data.stateCode === 1){
           this.$toast.success("已发送微信推送！")
+          // this.$router.push('/pushSuccess')
         }else {
           this.$toast.fail("发送微信推送失败！")
         }
@@ -833,9 +865,24 @@ export default {
     },
     //选中的品牌
     chooseBrand(value){
-      this.carBrand = value;
+      this.carBrandName = value;
       console.log('value is ',value)
       this.showCarModel = false;
+      this.chooseBrandId();
+
+    },
+    //选中的品牌获取对应的Id
+    chooseBrandId(){
+      let that = this;
+      this.brandLists.map(function (cur,index) {
+        if(that.carBrandName == cur ){
+          that.brandIndex = index
+        }
+      })
+      console.log("that.brandIndex", that.brandIndex)
+      this.carBrand = that.brandIdList[that.brandIndex]
+      console.log("that.carBrand",that.carBrand)
+
     },
     //获取所有车辆品牌
     getCarBrand(){
@@ -850,9 +897,11 @@ export default {
         this.allBrandList = res.data.data.brandList;
         console.log(this.allBrandList)
         this.allBrandList.map(function (cur,index) {
-          that.brandLists.push(cur.ceName)
+          that.brandLists.push(cur.ceName);
+          that.brandIdList.push(cur.ceId);
         })
-        console.log(that.brandLists)
+        console.log('that.brandLists',that.brandLists)
+        console.log("that.brandIdList",that.brandIdList)
       })
     },
 
@@ -860,9 +909,16 @@ export default {
 };
 </script>
 
+
 <style  scoped>
   .buleBtn{
     position: sticky;
+  }
+  .managerInfo-icon{
+    height: 30px;
+    width: 20px;
+    margin-top: 10px;
+    margin-right: 3px;
   }
 .main {
   width: 100%;

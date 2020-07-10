@@ -1,8 +1,11 @@
 <template>
   <div class="main">
     <div class="headerBG">
-      <img src="../../assets/GZTopBanner.jpg" width="100%" />
+      <img v-if="state == 2" src="../../assets/GZTopBanner.jpg" width="100%" />
+      <img v-if="state == 3" src="../../assets/bg01_01.png" width="100%">
+      <img v-if="state == 6" src="../../assets/bg03_03.jpg" width="100%">
     </div>
+<!--    <div class="hHeight"></div>-->
     <div class="content">
       <van-form @submit="onSubmit">
         <van-field
@@ -50,8 +53,20 @@
 
         <van-field  maxlength="6" v-model="validateCode" name="validateCode" center clearable label="短信验证码:" placeholder="请输入短信验证码" :rules="[{ required: true, message: '请输入短信验证码' }]">
           <template #button>
-            <van-button v-if="isShowSend" size="small" type="primary" button-type="info" native-type="button" @click="getValidateCode" >发送验证码</van-button>
-            <van-button v-else size="small" type="primary" button-type="info" native-type="button">
+            <van-button v-if="isShowSend && state == 2" size="small" type="primary" button-type="info" native-type="button" color="#cf271f" @click="getValidateCode" >发送验证码</van-button>
+            <van-button v-if="isShowSend && state == 3" size="small" type="primary" button-type="info" native-type="button" color="#171C61" @click="getValidateCode" >发送验证码</van-button>
+            <van-button v-if="isShowSend && state == 6" size="small" type="primary" button-type="info" native-type="button" color="#60007d" @click="getValidateCode" >发送验证码</van-button>
+            <van-button v-if="!isShowSend && state == 2" size="small" type="primary" button-type="info" native-type="button" color="#cf271f">
+              <template >
+                <van-count-down :time="60000" format=" ss 秒" @finish="isShowSend = true" style="color:#fff"/>
+              </template>
+            </van-button>
+            <van-button v-if="!isShowSend && state == 3" size="small" type="primary" button-type="info" native-type="button" color="#171C61">
+              <template >
+                <van-count-down :time="60000" format=" ss 秒" @finish="isShowSend = true" style="color:#fff"/>
+              </template>
+            </van-button>
+            <van-button v-if="!isShowSend && state == 6" size="small" type="primary" button-type="info" native-type="button" color="#60007d">
               <template >
                 <van-count-down :time="60000" format=" ss 秒" @finish="isShowSend = true" style="color:#fff"/>
               </template>
@@ -114,7 +129,7 @@
     <!--是否进行初筛-->
     <van-popup v-model="onShowNext" position="bottom">
 
-    <template v-if="state == 2">
+    <template v-if="state == 2 || state == 6">
       <div class="submitResult">
 
         <div style="text-align: left;">
@@ -156,8 +171,8 @@
     </template>
 
     </van-popup>
-   
-    <div @click="onApplyBtn" class="Bottom-Btn"></div>
+
+    <div @click="onApplyBtn" :style="{backgroundColor:btnColor}" class="Bottom-Btn">立即申请</div>
 
     <!--选择车型-->
     <van-popup v-model="showCarModel" :style="{ width: '100%',height:'100%' }" >
@@ -630,7 +645,7 @@ export default {
       bigManager:'',
       managerTel:'',
       managerName:'',
-
+      btnColor:''
     };
   },
   // beforeRouteEnter(to,from,next){
@@ -649,16 +664,25 @@ export default {
     this.branchLoanId = this.$store.state.branchLoanId;
     this.managerTel = this.$store.state.managerTel;
     this.managerName = this.$store.state.managerName;
-    console.log("state=" + this.state);
+    console.log("state=" , this.state);
+    console.log("franchiserId===",this.$store.state.franchiserId)
     //客户经理
+        
     if(this.state == 2){
       this.feedModel = 1;
+      this.btnColor = '#cf271f'
     }
     //代理人
     else if(this.state == 3){
       this.feedModel = 2;
+      this.btnColor = '#171C61'
     }
-
+    //渠道直销
+    else if(this.state == 6){
+      this.feedModel = 3
+      this.btnColor = '#60007d'
+    }
+    console.log(this.feedModel)
     this.oftenBrand = this.oftenBrandList;
     this.getCarBrand();
 
@@ -719,7 +743,7 @@ export default {
         this.isShowSend = false
       }else{
         this.isShowSend = true;
-        this.$toast.fail("手机号码合适不正确！")
+        this.$toast.fail("手机号码格式不正确！")
       }
 
     },
@@ -743,7 +767,7 @@ export default {
         {customerManagerId:this.managerId},
         {customerManagerName:this.$store.state.managerName},
         {carBrand:this.carBrand},
-
+        {franchiserId:this.$store.state.franchiserId}
       )
       console.log('loanInfo',loanInfo)
       loanApplication(loanInfo).then(res => {
@@ -759,7 +783,7 @@ export default {
         this.branchLoanId = this.result;
         console.log("serialNumber:",this.$store.state.serialNumber,"branchLoanId:",this.$store.state.branchLoanId)
 
-        if(this.feedModel == 1){
+        if(this.feedModel == 1 || this.feedModel == 3){
           this.sendWechat();
         }
         // else if(this.feedModel == 2){
@@ -793,6 +817,7 @@ export default {
       // });
     },
     goOn() {
+      console.log(this.$store.state.state)
         this.$router.push({
           path: "/index",
           query:{
@@ -802,6 +827,7 @@ export default {
             id:this.$store.state.id,
             clueId:this.$store.state.clueId,
             branchLoanId:this.$store.state.branchLoanId,
+            franchiserId:this.$store.state.franchiserId
           }
         });
 
@@ -836,7 +862,7 @@ export default {
       wechat(wxInfo).then(res => {
         console.log(res.data.data)
         if (res.data.data.stateCode === 1){
-          this.$toast.success("已发送微信推送！")
+          this.$toast.success("已通知您的专属客户经理！")
           // this.$router.push('/pushSuccess')
         }else {
           this.$toast.fail("发送微信推送失败！")
@@ -911,6 +937,11 @@ export default {
 
 
 <style  scoped>
+  .hHeight{
+    width: 100%;
+    height: 40px;
+    background-color: #e3cdb7;
+  }
   .buleBtn{
     position: sticky;
   }
@@ -930,6 +961,7 @@ export default {
 }
 .headerBG {
   width: 100%;
+  background-color: #e3cdb7;
 }
 .content {
   background: none;
@@ -949,21 +981,34 @@ export default {
   margin: 0 auto;
   margin-top: 5px;
 }
-.Bottom-Btn {
-  height: 12vw;
-  padding-right: 1rem;
-  padding-left: 1rem;
-  width: 100%;
-  padding: 0;
-  position: fixed;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  z-index: 10;
-  background: rgba(0, 0, 0, 0);
-  background: url("../../assets/GZ_btn.png") no-repeat;
-  background-size: 100% 100%;
-}
+  .Bottom-Btn {
+    padding: 4% 0;
+    width: 100%;
+    position: fixed;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 10;
+    background-size: 100% 100%;
+    text-align: center;
+    color: #ffffff;
+  }
+
+/*.Bottom-Btn {*/
+/*  height: 12vw;*/
+/*  padding-right: 1rem;*/
+/*  padding-left: 1rem;*/
+/*  width: 100%;*/
+/*  padding: 0;*/
+/*  position: fixed;*/
+/*  right: 0;*/
+/*  left: 0;*/
+/*  bottom: 0;*/
+/*  z-index: 10;*/
+/*  background: rgba(0, 0, 0, 0);*/
+/*  background: url("../../assets/GZ_btn.png") no-repeat;*/
+/*  background-size: 100% 100%;*/
+/*}*/
 .bottomContent_Content {
   font-size: 3vw;
   width: 100%;

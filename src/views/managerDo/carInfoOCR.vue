@@ -185,6 +185,7 @@ export default {
     this.state = this.$store.state.state;
     this.managerId = this.$store.state.managerId;
     this.branchLoanId = this.$store.state.branchLoanId;
+    console.log(this.$store.state)
 
     if (this.state == 2) {
       //客户经理
@@ -193,6 +194,10 @@ export default {
     else if(this.state == 3){
       //代理人
       this.feedModel = 2;
+    }
+    else if(this.state == 6){
+      //渠道直销
+      this.feedModel = 3;
     }
 
     if(this.$store.state.clueId != ""){
@@ -361,6 +366,7 @@ export default {
         {managerId:this.managerId},
         {clueId: this.$store.state.clueId},
         {applyNum:this.$store.state.serialNumber},
+        {franchiserId:this.$store.state.franchiserId}
         )
       console.log(carInfoData)
 

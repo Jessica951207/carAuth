@@ -43,7 +43,8 @@ const store = new Vuex.Store({
     state:'',
     branchLoanId:'',
     token:'',
-    serialNumber:''
+    serialNumber:'',
+    franchiserId:''
 
 
   },
@@ -58,6 +59,7 @@ const store = new Vuex.Store({
       state.branchLoanId = param['branchLoanId'];
       state.state = param["state"];
       state.token = param["token"];
+      state.franchiserId = param["franchiserId"];
     }
   },
   // same as computed

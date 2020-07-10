@@ -45,7 +45,7 @@
 
 <script>
   import { getUrlParam } from "../../common/common.js";
-  import { queryUserInfo , updateLoanStatus } from '../../request/api'
+  import { queryUserInfo , updateLoanStatus, queryScreenRemark } from '../../request/api'
     export default {
       name: "screenResult",
       data(){
@@ -85,6 +85,7 @@
 
         this.getUserInfo();
         this.updateState();
+        this.ScreenRemark();
       },
       methods:{
         //更新状态
@@ -125,6 +126,13 @@
         },
         onSubmit(){
 
+        },
+        ScreenRemark(){
+          var clueId = Object.assign({clueId:this.$store.state.clueId})
+          queryScreenRemark(clueId).then(res => {
+            console.log(res.data.data);
+            this.message = res.data.data.remark
+          })
         }
       }
     }

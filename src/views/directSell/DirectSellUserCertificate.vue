@@ -103,6 +103,9 @@ export default {
     else if(this.state == 3){
       this.feedModel = 2
     }
+    else if(this.state == 6){
+      this.feedModel = 3
+    }
 
     console.log("state=" + this.state);
   },

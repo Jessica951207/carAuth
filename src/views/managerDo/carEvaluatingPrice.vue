@@ -79,7 +79,7 @@ export default {
           }
         });
       }
-      else if (this.state == 2 || this.state == 3) {
+      else if (this.state == 2 || this.state == 3 || this.state == 6) {
         this.$router.push({
           path: "/DirectSellUserCertificate",
           query: {

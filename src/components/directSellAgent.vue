@@ -15,36 +15,29 @@
       <!--<van-image width="100%" height="100%" src="http://iph.href.lu/500x400?text=占位图" />-->
     <!--</div>-->
     <div class="directLogo">
-      <img class="directImg" src="../assets/logoMain.png" alt="">
+      <img class="directImg" src="../assets/logoMain2.png" alt="">
     </div>
     <div class="topBanner">
-      <img class="directImg" src="../assets/DTopBanner.png" alt="">
-    </div>
-    <div class="directTit">
-      <img class="directImg" src="../assets/directTit.png" alt="">
-    </div>
-    <div class="directTit2">
-      <img class="directImg" src="../assets/directTit2.png" alt="">
+      <img class="directImg" src="../assets/DTopBanner2.png" alt="">
     </div>
     <div class="tag">
-      <img class="directImg" src="../assets/tag.png" alt="">
+      <img class="directImg" src="../assets/drictHeart.png" alt="">
     </div>
     <div class="directTxt">
-      <img class="directImg" src="../assets/directTxt.png" alt="">
+      <img class="directImg" src="../assets/directTxt2.png" alt="">
     </div>
     <!-- <div class="bottomBtn" :style="bottomBtnStyle"> -->
     <div class="bottomBtn">
-      <van-button style="width:45%" round block color="#c9231e" @click="toApply">立即申请</van-button>
-      <van-button style="width:45%" round block color="#c9231e" type="info" @click="toRRD">成为推荐人</van-button>
+      <van-button style="width:45%;" round block color="linear-gradient(#cbe4f3, #65bce7)" @click="toApply">立即申请</van-button>
+      <van-button style="width:45%;" round block color="linear-gradient(#cbe4f3, #65bce7)" type="info" @click="toRRD">成为推荐人</van-button>
       <!--<van-button style="width:45%" round block color="#83c4e7" @click="toApply">贷款申请</van-button>-->
       <!--<van-button style="width:45%" round block color="#83c4e7" type="info" @click="toRRD">成为推荐人</van-button>-->
     </div>
     <div class="process">
-      <img class="directImg" src="../assets/process.png" alt="">
+      <img class="directImg" src="../assets/process3.png" alt="">
     </div>
     <div class="provider">
-      <div class="main">重要股东:</div>
-      <div class="mainPic"><img class="directImg" src="../assets/providerLogo.png" alt=""></div>
+      <img class="directImg" src="../assets/provider.png" alt="">
     </div>
   </div>
 </template>
@@ -74,7 +67,7 @@ export default {
     this.state = this.$store.state.state
     this.managerId = this.$store.state.managerId
     console.log("state=" + this.state + "managerId=",this.managerId)
-    this.getManagerData();
+    // this.getManagerData();    //代理人直销 暂不调此接口
 
     //获取屏幕高度
     this.sHeight = window.screen.height;
@@ -137,7 +130,7 @@ export default {
 <style scoped>
   .directBg{
     width: 100%;
-    background: url("../assets/managerBac.png") no-repeat;
+    background: url("../assets/bg_02.png") no-repeat;
     position: absolute; 
     right: 0; 
     top: 0;
@@ -159,34 +152,26 @@ export default {
     width: 100%;
   }
   .topBanner{
-    width: 52%;
-    padding: 0 24%;
-  }
-  .directTit{
-    width: 72%;
-    padding: 0 14%;
-  }
-  .directTit2{
-    width: 54%;
-    padding: 0 23%;
+    width: 76%;
+    padding: 0 12%;
   }
   .directTxt{
     width: 76%;
     padding: 0 12%;
+    margin-top: 10px;
   }
   .tag{
     width: 42%;
     padding: 0 29%;
   }
   .process{
-    width: 78%;
-    padding: 0 11%;
-    margin-top: 14%;
+    width: 80%;
+    padding: 0 10%;
+    margin-top: 16%;
   }
   .provider{
     width: 78%;
     padding: 2% 11%;
-    display: flex;
     height: 24px;
   }
   .main{
@@ -204,7 +189,7 @@ export default {
   margin: 0 auto;
   /*padding: 120% 20px 20px 20px;*/
   /*padding: 125% 20px 20px 20px;*/
-  margin-top: 8%;
+  margin-top: 20%;
   display: flex;
   justify-content: space-around;
 }
@@ -225,6 +210,10 @@ export default {
 .image {
   padding: 10px;
   margin-top: 10px;
+}
+.van-button__text{
+  color:#171C61 !important;
+  font-weight: 550;
 }
   /*@media screen and  (min-width: 375px) and (max-width: 375px){*/
     /*.bottomBtn{padding-top: 135%;}*/

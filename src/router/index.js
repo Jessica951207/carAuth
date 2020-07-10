@@ -38,7 +38,10 @@ import pushSuccess from '../views/directSell/pushSuccess'
 import DirectSellUserCertificate from '../views/directSell/DirectSellUserCertificate'
 import directSellScreening from '../views/directSell/directSellScreening'
 
-
+//代理人直销
+import directSellAgent from '@/components/directSellAgent.vue'
+//渠道直销
+import channelDirectSell from '@/components/channelDirectSell'
 Vue.use(Router)
 
 export default new Router({
@@ -173,6 +176,15 @@ export default new Router({
       name: 'pushSuccess',
       component: pushSuccess,
     },
-
+    {
+      path: '/directSellAgent',
+      name: 'directSellAgent',
+      component: directSellAgent,
+    },
+    {
+      path: '/channelDirectSell',
+      name: 'channelDirectSell',
+      component: channelDirectSell,
+    }
   ]
 })

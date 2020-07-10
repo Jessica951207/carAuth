@@ -109,6 +109,10 @@
           //代理人
           this.feedModel = 2;
         }
+        //渠道直销
+        else if(this.state == 6){
+          this.feedModel = 3;
+        }
           // this.managerId = getUrlParam("managerId")
           // this.type = getUrlParam("type")
           // this.clueId = this.$store.state.clueId
@@ -222,7 +226,8 @@
             {managerId:this.managerId},
             {bankCode:this.bankCode},
             {type:this.type},
-            {state:this.state},
+            {clueId:this.$store.state.clueId},
+            {franchiserId:this.$store.state.franchiserId}
           )
           console.log("渠道：",channel);
           searchChannel(channel).then(res => {

@@ -4,9 +4,6 @@
  **/
 /* jshint esversion: 6 */
 import axios from 'axios';
-axios.defaults.withCredentials = true
-
-import router from '../router';
 import QS from 'qs'
 import {Toast} from 'vant';
 

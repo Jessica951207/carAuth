@@ -44,7 +44,7 @@ export default {
     this.state = this.$store.state.state;
     this.clueId = this.$store.state.clueId;
     console.log('this.state',this.state,this.clueId,this.$store.state.id)
-    if(this.state == 2 || this.state == 3){
+    if(this.state == 2 || this.state == 3 || this.state == 6){
       this.showBtn = true
     }else{
       this.showBtn = false

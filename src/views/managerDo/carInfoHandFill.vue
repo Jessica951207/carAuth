@@ -183,7 +183,10 @@ export default {
       //代理人
       this.feedModel = 2;
     }
-
+    else if(this.state == 6){
+      //渠道直销
+      this.feedModel = 3;
+    }
     if(this.clueId != ""){
       this.assignCarInfo();
     }else{
@@ -310,7 +313,8 @@ export default {
         {managerId:this.managerId},
         {clueId: this.$store.state.clueId},
         {applyNum:this.$store.state.serialNumber},
-        {feedModel:this.feedModel}
+        {feedModel:this.feedModel},
+        {franchiserId:this.$store.state.franchiserId}
       )
 
       //保存汽车信息

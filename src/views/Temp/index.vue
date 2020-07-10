@@ -10,6 +10,7 @@
       <van-button style="margin-top:25px" round block type="info" @click="four">车辆评估单一需求</van-button>
       <van-button style="margin-top:25px" round block type="info" @click="five">实名认证单一需求</van-button>
       <van-button style="margin-top:25px" round block type="info" @click="six">结果查询</van-button>
+      <van-button style="margin-top:25px" round block type="info" @click="eight">渠道直销</van-button>
       <van-button style="margin-top:25px" round block type="info" @click="seven">悬浮</van-button>
     </div>
   </div>
@@ -55,7 +56,7 @@ export default {
     //代理人直销
     three() {
       this.$router.push({
-        path: "/directSell",
+        path: "/directSellAgent",
         query: {
           state: 3,
           managerId:228,
@@ -94,6 +95,7 @@ export default {
         }
       });
     },
+    //结果查询
     six() {
       this.$router.push({
         path: "/search",
@@ -103,11 +105,28 @@ export default {
           type:1,
           branchLoanId:"",
           id:"",
-          clueId:""
+          clueId:"",
+          franchiserId:'100'
         }
         
       });
-    }
+    },
+    //渠道直销
+    eight(){
+      this.$router.push(
+      {
+        path: "/channelDirectSell",
+        query: {
+          state: 6,
+          managerId:101,
+          type:4,
+          branchLoanId:"",
+          id:"",
+          clueId:"",
+          franchiserId:'100'
+        }
+      })
+    },
   }
 };
 </script>

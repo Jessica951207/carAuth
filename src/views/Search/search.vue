@@ -54,7 +54,7 @@
                 </p>
                 <p>
                   额度评估:
-                  <span>{{item.limitEva}}</span>
+                  <span>{{item.rateAssess}}</span>
                 </p>
               </div>
               <div class="searchBox2">
@@ -84,7 +84,7 @@
           </div>
 
           <div v-if="moduleType == 2">
-            <div class="searchContent" v-for="item in filterDetail" :key="item.id" @click="toWhichPath(item.applyStatus,item.clueId,item.type,item.userId,item.branchLoanId)">
+            <div class="searchContent" v-for="item in filterDetail" :key="item.id" @click="toWhichPath(item.applyStatus,item.clueId,item.type,item.userId,item.branchLoanId,item.franchiserId)">
               <div class="searchBox">
                 <p>
                   申请编号:
@@ -147,7 +147,7 @@
           </div>
 
           <div v-if="moduleType == 3">
-            <div class="searchContent" v-for="item in filterDetail" :key="item.id" @click="toWhichPath(item.applyStatus,item.clueId,item.type,item.userId,item.branchLoanId)">
+            <div class="searchContent" v-for="item in filterDetail" :key="item.id" @click="toWhichPath(item.applyStatus,item.clueId,item.type,item.userId,item.branchLoanId,item.franchiserId)">
               <div class="searchBox">
                 <p>
                   申请编号:
@@ -377,14 +377,14 @@ export default {
       this.isPushList = true;
     },
     //详情页跳转
-    toWhichPath(applyStatus,clueId,type,userId,branchLoanId){
+    toWhichPath(applyStatus,clueId,type,userId,branchLoanId,franchiserId){
       console.log(applyStatus,clueId,type,userId,branchLoanId)
 
       this.$store.state.clueId = clueId;
       this.$store.state.id = userId;
       this.$store.state.type = type;
       this.$store.state.branchLoanId = branchLoanId;
-
+      this.$store.state.franchiserId = franchiserId
       if(applyStatus == '初筛通过'){
         this.$router.push({
           path:'/chooseInvestor',
@@ -393,7 +393,8 @@ export default {
             type:type,
             clueId:clueId,
             managerId:this.managerId,
-            id:userId
+            id:userId,
+            franchiserId
           }
         })
       }
@@ -405,7 +406,8 @@ export default {
             type:type,
             clueId:clueId,
             managerId:this.managerId,
-            id:userId
+            id:userId,
+            franchiserId
           }
         })
       }
@@ -417,7 +419,8 @@ export default {
             type:type,
             clueId:clueId,
             managerId:this.managerId,
-            id:userId
+            id:userId,
+            franchiserId
           }
         })
       }
@@ -429,7 +432,8 @@ export default {
             type:type,
             clueId:clueId,
             managerId:this.managerId,
-            id:userId
+            id:userId,
+            franchiserId
           }
         })
       }
@@ -441,7 +445,8 @@ export default {
             type:type,
             clueId:clueId,
             managerId:this.managerId,
-            id:userId
+            id:userId,
+            franchiserId
           }
         })
       }
@@ -453,7 +458,8 @@ export default {
             type:type,
             clueId:clueId,
             managerId:this.managerId,
-            id:userId
+            id:userId,
+            franchiserId
           }
         })
       }
@@ -516,7 +522,16 @@ export default {
 
     getData() {
       //1=扫码简易申请，2=额度初筛，3=车辆评估，4=直销模式，5=实名认证
-
+      
+       
+       /* 解决页面触底后，点击查询，页面触底不触发onload */
+       
+      if(this.finished){
+        this.finished = false;
+        this.loading = true;
+      }
+      /* 解决页面触底后，点击查询，页面触底不触发onload */
+      
       var param = Object.assign(
         { pIdx: this.pIdx },
         { pSize: "10" },
@@ -532,7 +547,7 @@ export default {
         console.log("res.data.data",res.data.data);
         let list = res.data.data["loanInfo.list"];
         let num = res.data.data["num.list"];
-        console.log(list, num, this.pIdx, this.refreshing);
+        console.log(list, num, this.pIdx, this.refreshing,this.finished);
 
         if (this.refreshing) {
           this.filterDetail = [];
@@ -550,6 +565,7 @@ export default {
         if (this.filterDetail.length >= num) {
           this.finished = true;
         }
+        console.log(this.finished)
 
       });
     }

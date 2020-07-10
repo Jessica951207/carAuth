@@ -1,50 +1,29 @@
 <template>
   <div class="directBg">
-    <!--<div v-show="state == 2" class="top">-->
-      <!--<div class="top-image">-->
-        <!--<van-image width="100" height="100" :src='headUrl' />-->
-      <!--</div>-->
-      <!--<div class="top-content">-->
-        <!--<div>姓名：{{managerName}}</div>-->
-        <!--<div>部门：{{department}}</div>-->
-        <!--<div>职务：{{job}}</div>-->
-        <!--<div>手机：{{phoneNumber}}</div>-->
-      <!--</div>-->
-    <!--</div>-->
-    <!--<div class="image">-->
-      <!--<van-image width="100%" height="100%" src="http://iph.href.lu/500x400?text=占位图" />-->
-    <!--</div>-->
     <div class="directLogo">
-      <img class="directImg" src="../assets/logoMain.png" alt="">
+      <img class="directImg" src="../assets/logoMain2.png" alt="">
     </div>
     <div class="topBanner">
-      <img class="directImg" src="../assets/DTopBanner.png" alt="">
+      <img class="directImg" src="../assets/DTopBanner3.png" alt="">
     </div>
     <div class="directTit">
-      <img class="directImg" src="../assets/directTit.png" alt="">
-    </div>
-    <div class="directTit2">
-      <img class="directImg" src="../assets/directTit2.png" alt="">
+      <img class="directImg" src="../assets/directTit3.png" alt="">
     </div>
     <div class="tag">
-      <img class="directImg" src="../assets/tag.png" alt="">
+      <img class="directImg" src="../assets/drictHeart2.png" alt="">
     </div>
     <div class="directTxt">
-      <img class="directImg" src="../assets/directTxt.png" alt="">
+      <img class="directImg" src="../assets/directTxt3.png" alt="">
     </div>
     <!-- <div class="bottomBtn" :style="bottomBtnStyle"> -->
     <div class="bottomBtn">
-      <van-button style="width:45%" round block color="#c9231e" @click="toApply">立即申请</van-button>
-      <van-button style="width:45%" round block color="#c9231e" type="info" @click="toRRD">成为推荐人</van-button>
-      <!--<van-button style="width:45%" round block color="#83c4e7" @click="toApply">贷款申请</van-button>-->
-      <!--<van-button style="width:45%" round block color="#83c4e7" type="info" @click="toRRD">成为推荐人</van-button>-->
+      <van-button style="width:70%" round block color="linear-gradient(#fee9d1, #fad3a9)" @click="toApply">立即申请</van-button>
     </div>
     <div class="process">
-      <img class="directImg" src="../assets/process.png" alt="">
+      <img class="directImg" src="../assets/process4.png" alt="">
     </div>
     <div class="provider">
-      <div class="main">重要股东:</div>
-      <div class="mainPic"><img class="directImg" src="../assets/providerLogo.png" alt=""></div>
+      <img class="directImg" src="../assets/provider.png" alt="">
     </div>
   </div>
 </template>
@@ -64,23 +43,15 @@ export default {
       managerId:'',
       sHeight:'',
       sHeightCut:'',
-      bottomBtnStyle:{
-        padding:""
-      }
     };
   },
   mounted() {
     this.$store.commit('updateParam',getUrlParam())
+    console.log('this.$store.state.franchiserId==========',this.$store.state.franchiserId)
     this.state = this.$store.state.state
     this.managerId = this.$store.state.managerId
     console.log("state=" + this.state + "managerId=",this.managerId)
     this.getManagerData();
-
-    //获取屏幕高度
-    this.sHeight = window.screen.height;
-    console.log("this.sHeight",this.sHeight);
-    this.sHeightCut = this.sHeight * 0.04
-    this.bottomBtnStyle.padding = this.sHeightCut + "px" + " 20px 0px 20px"
   },
   methods: {
     getManagerData(){
@@ -110,25 +81,10 @@ export default {
           id:that.$store.state.id,
           clueId:that.$store.state.clueId,
           branchLoanId:that.$store.state.branchLoanId,
-
+          franchiserId:that.$store.state.franchiserId
         }
       });
-    },
-    //成为推荐人
-    toRRD(){
-       let that = this;
-      this.$router.push({
-        path: "/register",
-        query: {
-          state: that.state,
-          managerId:that.managerId,
-          type:that.$store.state.type,
-          id:that.$store.state.id,
-          clueId:that.$store.state.clueId,
-          branchLoanId:that.$store.state.branchLoanId,
-        }
-      });
-    },
+    }
 
   }
 };
@@ -137,7 +93,7 @@ export default {
 <style scoped>
   .directBg{
     width: 100%;
-    background: url("../assets/managerBac.png") no-repeat;
+    background: url("../assets/bg_03.jpg") no-repeat;
     position: absolute; 
     right: 0; 
     top: 0;
@@ -173,20 +129,20 @@ export default {
   .directTxt{
     width: 76%;
     padding: 0 12%;
+    margin-top: 10px;
   }
   .tag{
     width: 42%;
     padding: 0 29%;
   }
   .process{
-    width: 78%;
-    padding: 0 11%;
-    margin-top: 14%;
+    width: 80%;
+    padding: 0 10%;
+    margin-top: 16%;
   }
   .provider{
     width: 78%;
     padding: 2% 11%;
-    display: flex;
     height: 24px;
   }
   .main{
@@ -200,11 +156,11 @@ export default {
     width:80%;
   }
 .bottomBtn{
-  width: 80%;
+  width: 100%;
   margin: 0 auto;
   /*padding: 120% 20px 20px 20px;*/
   /*padding: 125% 20px 20px 20px;*/
-  margin-top: 8%;
+  margin-top: 20%;
   display: flex;
   justify-content: space-around;
 }
@@ -226,10 +182,8 @@ export default {
   padding: 10px;
   margin-top: 10px;
 }
-  /*@media screen and  (min-width: 375px) and (max-width: 375px){*/
-    /*.bottomBtn{padding-top: 135%;}*/
-  /*}*/
-  /*@media screen and (min-width: 768px) and (max-width: 1024px){*/
-    /*.bottomBtn{padding-top: 90%;}*/
-  /*}*/
+.van-button__text{
+  color:#E83828 !important;
+  font-weight: 550;
+}
 </style>

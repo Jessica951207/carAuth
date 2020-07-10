@@ -424,3 +424,11 @@ export function getMenu(BranchLoanId) {
     data:BranchLoanId
   })
 }
+//初筛结果备注
+export function queryScreenRemark(clueId) {
+  return request({
+    method: 'post',
+    url:'/zlhj_interface/completeScreen/queryScreenRemark',
+    data:clueId
+  })
+}

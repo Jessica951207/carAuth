@@ -63,6 +63,9 @@ export default {
     else if(this.state == 3){
       this.feedModel = 2
     }
+    else if(this.state == 6){
+      this.feedModel =3
+    }
 
     this.getUserInfo();
 
@@ -158,7 +161,7 @@ export default {
       wechat(wxInfo).then(res => {
         console.log(res.data.data)
         if (res.data.data.stateCode === 1){
-          this.$toast.success("已发送微信推送！")
+          this.$toast.success("已通知您的专属客户经理！")
         }else {
           this.$toast.fail("发送微信推送失败！")
         }

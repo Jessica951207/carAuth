@@ -6,13 +6,15 @@ const path = require('path')
 
 //dev  Environment
 // var baseUrl = 'http://10.1.3.35:8080'
-var baseUrl = 'http://10.1.3.34:8060'
+// var baseUrl = 'http://10.1.3.34:8060'
+var baseUrl = 'http://10.1.3.31:8062'
+
 
 // sit Environment
 // var baseUrl = 'http://192.168.88.62:8080'
 
 // test Environment
-// var baseUrl = 'http://192.168.90.101:8080'
+// var baseUrl = 'http://192.168.90.100'
 
 module.exports = {
   dev: {
@@ -32,14 +34,15 @@ module.exports = {
     },
 
     // Various Dev Server settings
-    host: '10.1.3.8', // can be overwritten by process.env.HOST
+    host: '10.1.3.86', // can be overwritten by process.env.HOST
+    // host: 'localhost', // can be overwritten by process.env.HOST
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,
     notifyOnErrors: true,
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
 
-    
+
     /**
      * Source Maps
      */

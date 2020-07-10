@@ -46,6 +46,9 @@
     -moz-osx-font-smoothing: grayscale;
     color: #2c3e50;
   }
+  #demo img{
+    width: 100%;
+  }
 </style>
 <style>
   .wrapper {

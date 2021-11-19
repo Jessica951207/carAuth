@@ -12,6 +12,9 @@
       <van-button style="margin-top:25px" round block type="info" @click="six">结果查询</van-button>
       <van-button style="margin-top:25px" round block type="info" @click="eight">渠道直销</van-button>
       <van-button style="margin-top:25px" round block type="info" @click="seven">悬浮</van-button>
+      <van-button style="margin-top:25px" round block type="info" @click="nine">拖拽</van-button>
+      <van-button style="margin-top:25px" round block type="info" @click="eleven">拖拽Demo</van-button>
+      <van-button style="margin-top:25px" round block type="info" @click="ten">booking</van-button>
     </div>
   </div>
 </template>
@@ -22,6 +25,15 @@ export default {
     return {};
   },
   methods: {
+    eleven(){
+      this.$router.push('/dragDemo')
+    },
+    ten(){
+      this.$router.push('/booking')
+    },
+    nine(){
+      this.$router.push('/drag')
+    },
     seven(){
       this.$router.push('/hover')
     },
@@ -108,7 +120,7 @@ export default {
           clueId:"",
           franchiserId:'100'
         }
-        
+
       });
     },
     //渠道直销

@@ -58,6 +58,21 @@ export default new Router({
       component: hover,
     },
     {
+      path: '/drag',
+      name: 'drag',
+      component: () => import("../views/Drag/drag"),
+    },
+    {
+      path: '/dragDemo',
+      name: 'dragDemo',
+      component: () => import("../views/Drag/dragDemo"),
+    },
+    {
+      path: '/booking',
+      name: 'booking',
+      component: () => import("../views/Drag/booking"),
+    },
+    {
       path: '/index',
       name: 'index',
       component: index,

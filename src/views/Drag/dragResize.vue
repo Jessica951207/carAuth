@@ -35,7 +35,7 @@ const CALC_MASK = {
   w: 0b0100,
   h: 0b1000
 };
-
+let tempHeight = ''
 export default {
   name: "dragResize",
   props: {
@@ -97,6 +97,9 @@ export default {
         ["l", "t", "w", "h"].filter(value => val.indexOf(value) !== -1)
           .length === val.length,
       type: Array
+    },
+    blockArray: {
+      default: [],
     }
   },
   emits: [
@@ -166,14 +169,37 @@ export default {
       typeof value === "number" && (this.w = value);
     },
     height(value) {
-      typeof value === "number" && (this.h = value);
+      const bottomValue = this.t+ value
+      this.blockArray.map((cur, index)=>{
+        // console.log(this.t, cur[0],cur[1],'1111111111')
+        if(this.t<=cur[1] && this.t>=cur[0]){
+          // return;
+        }
+        else if(bottomValue>=cur[0] && bottomValue<=cur[1]){
+          this.h = cur[0]- this.t
+        } else {
+          typeof value === "number" && (this.h = value);
+        }
+      })
     },
     left(value) {
       typeof value === "number" && (this.l = value);
     },
     top(value) {
-      // console.log("-----------------this.$el.offsetTop",this.$el.offsetTop,value)
-      typeof value === "number" && (this.t = value);
+      const topValue = value;
+      const bottomValue = this.height+ value
+      this.blockArray.map((cur)=>{
+        if(topValue<=cur[1] && topValue>=cur[0]){
+          // 特殊处理
+          this.t = cur[1]
+        }
+        else if(bottomValue>=cur[0] && bottomValue<=cur[1]){
+          this.t = cur[0] - this.height
+        }
+        else {
+          typeof value === "number" && (this.t = value)
+        }
+      })
 
     },
     dragSelector(selector) {
@@ -322,6 +348,7 @@ export default {
         top: this.t,
         width: this.w,
         height: this.h,
+        offsetTop:this.$el.offsetTop,
         ...additionalOptions
       });
     },
@@ -375,25 +402,25 @@ export default {
           diffY /= scaleY;
         }
         this.offsetX = this.offsetY = 0;
-        if (this.resizeState & ELEMENT_MASK["resizable-r"].bit) {
-          if (!this.dragState && this.w + diffX < this.minW)
-            this.offsetX = diffX - (diffX = this.minW - this.w);
-          else if (
-            !this.dragState &&
-            this.maxW &&
-            this.w + diffX > this.maxW &&
-            (!this.fitParent || this.w + this.l < this.parent.width)
-          )
-            this.offsetX = diffX - (diffX = this.maxW - this.w);
-          else if (
-            this.fitParent &&
-            this.l + this.w + diffX > this.parent.width
-          )
-            this.offsetX =
-              diffX - (diffX = this.parent.width - this.l - this.w);
-
-          this.calcMap & CALC_MASK.w && (this.w += this.dragState ? 0 : diffX);
-        }
+        // if (this.resizeState & ELEMENT_MASK["resizable-r"].bit) {
+        //   if (!this.dragState && this.w + diffX < this.minW)
+        //     this.offsetX = diffX - (diffX = this.minW - this.w);
+        //   else if (
+        //     !this.dragState &&
+        //     this.maxW &&
+        //     this.w + diffX > this.maxW &&
+        //     (!this.fitParent || this.w + this.l < this.parent.width)
+        //   )
+        //     this.offsetX = diffX - (diffX = this.maxW - this.w);
+        //   else if (
+        //     this.fitParent &&
+        //     this.l + this.w + diffX > this.parent.width
+        //   )
+        //     this.offsetX =
+        //       diffX - (diffX = this.parent.width - this.l - this.w);
+        //
+        //   this.calcMap & CALC_MASK.w && (this.w += this.dragState ? 0 : diffX);
+        // }
         if (this.resizeState & ELEMENT_MASK["resizable-b"].bit) {
           if (!this.dragState && this.h + diffY < this.minH)
             this.offsetY = diffY - (diffY = this.minH - this.h);
@@ -413,22 +440,22 @@ export default {
 
           this.calcMap & CALC_MASK.h && (this.h += this.dragState ? 0 : diffY);
         }
-        if (this.resizeState & ELEMENT_MASK["resizable-l"].bit) {
-          if (!this.dragState && this.w - diffX < this.minW)
-            this.offsetX = diffX - (diffX = this.w - this.minW);
-          else if (
-            !this.dragState &&
-            this.maxW &&
-            this.w - diffX > this.maxW &&
-            this.l >= 0
-          )
-            this.offsetX = diffX - (diffX = this.w - this.maxW);
-          else if (this.fitParent && this.l + diffX < 0)
-            this.offsetX = diffX - (diffX = -this.l);
-
-          this.calcMap & CALC_MASK.l && (this.l += diffX);
-          this.calcMap & CALC_MASK.w && (this.w -= this.dragState ? 0 : diffX);
-        }
+        // if (this.resizeState & ELEMENT_MASK["resizable-l"].bit) {
+        //   if (!this.dragState && this.w - diffX < this.minW)
+        //     this.offsetX = diffX - (diffX = this.w - this.minW);
+        //   else if (
+        //     !this.dragState &&
+        //     this.maxW &&
+        //     this.w - diffX > this.maxW &&
+        //     this.l >= 0
+        //   )
+        //     this.offsetX = diffX - (diffX = this.w - this.maxW);
+        //   else if (this.fitParent && this.l + diffX < 0)
+        //     this.offsetX = diffX - (diffX = -this.l);
+        //
+        //   this.calcMap & CALC_MASK.l && (this.l += diffX);
+        //   this.calcMap & CALC_MASK.w && (this.w -= this.dragState ? 0 : diffX);
+        // }
         if (this.resizeState & ELEMENT_MASK["resizable-t"].bit) {
           if (!this.dragState && this.h - diffY < this.minH)
             this.offsetY = diffY - (diffY = this.h - this.minH);
@@ -443,14 +470,27 @@ export default {
             this.offsetY = diffY - (diffY = -this.t);
 
           this.calcMap & CALC_MASK.t && (this.t += diffY);
-          this.calcMap & CALC_MASK.h && (this.h -= this.dragState ? 0 : diffY);
+          /**
+           * qz*/
+          let flag = true;
+          const topValue = this.t;
+          this.blockArray.map((cur)=>{
+            if(topValue<=cur[1] && topValue>=cur[0]){
+              // 特殊处理
+              flag = false
+            }
+            else {
+              flag = true
+            }
+          })
+          this.calcMap & CALC_MASK.h && flag && (this.h -= this.dragState ? 0 : diffY);
         }
 
         // console.log("this.top",this.top)
         // this.mouseX = eventX;
         this.mouseX = 80;
         this.mouseY = eventY;
-        console.log("this.mouseX",this.mouseX," this.mouseY",this.mouseY)
+        // console.log("this.mouseX",this.mouseX," this.mouseY",this.mouseY)
         const eventName = !this.dragState ? "resize:move" : "drag:move";
         this.emitEvent(eventName);
       }

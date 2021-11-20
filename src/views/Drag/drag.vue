@@ -11,7 +11,7 @@
                      :active="handlers" :fit-parent="fit" :maximize="maximize"
                      :max-width="checkEmpty(maxW)" :max-height="checkEmpty(maxH)"
                      :min-width="checkEmpty(minW)" :min-height="checkEmpty(minH)"
-                     :width="width" :height="height"
+                     :width="width" :height="height" :blockArray="blockArr"
                      :left="left" :top="top"
                      @mount="eHandler"
                      @resize:move="eHandler" @resize:start="eHandler" @resize:end="eHandler"
@@ -36,6 +36,7 @@
 <!--          <div class="drag-container-2">drag_2</div>-->
         </div>
       </drag-resize>
+      <div class="blackBlock"></div>
     </div>
 
   </div>
@@ -125,7 +126,8 @@ export default {
         },
       ],
       startTime:"",
-      endTime:""
+      endTime:"",
+      blockArr:[[240,420]]
     };
   },
   methods: {
@@ -279,6 +281,13 @@ body, html {
   border-top: 1px solid #bfbfbf;
   position: absolute;
   left: 0;
+}
+.blackBlock{
+  width: 100%;
+  height: 180px;
+  background: #7d7d7d;
+  position: absolute;
+  top: 240px;
 }
 
 </style>

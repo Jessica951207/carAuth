@@ -24,12 +24,12 @@
               <tr>
                 <td>开始时间：{{this.startTime}}</td>
 <!--                <td>width:{{ width }}</td>-->
-<!--                <td>height:{{ height }}</td>-->
+                <td>height:{{ height }}</td>
               </tr>
               <tr>
                 <td>结束时间：{{this.endTime}}</td>
 <!--                <td>left:{{ left }}</td>-->
-<!--                <td>top:{{ // top }}</td>-->
+                <td>top:{{ top }}</td>
               </tr>
             </table>
           </div>
@@ -44,6 +44,7 @@
 <script>
 // import VueResizable from 'vue-resizable'
 import DragResize from "./dragResize";
+import {timeMap} from "./contant";
 
 export default {
   name: "drag",
@@ -161,6 +162,8 @@ export default {
         // startTime = "07:" + data.top
         // console.log("startTime",startTime)
       // }
+      // todo later 匹配map值
+      console.log( timeMap)
 
     },
     checkEmpty(value) {
@@ -171,7 +174,7 @@ export default {
     checkEmpty(value) {
       return typeof value !== "number" ? 0 : value;
     }
-  }
+  },
 }
 </script>
 

@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import {timeMap} from "./contant";
+
 const ELEMENT_MASK = {
   "resizable-r": { bit: 0b0001, cursor: "e-resize" },
   "resizable-rb": { bit: 0b0011, cursor: "se-resize" },
@@ -24,7 +26,7 @@ const ELEMENT_MASK = {
   "resizable-lt": { bit: 0b1100, cursor: "nw-resize" },
   "resizable-t": { bit: 0b1000, cursor: "n-resize" },
   "resizable-rt": { bit: 0b1001, cursor: "ne-resize" },
-  "drag-el": { bit: 0b1111, cursor: "pointer" }
+  "drag-el": { bit: 0b1111, cursor: "pointer", type: '111111' }
 };
 
 const CALC_MASK = {
@@ -143,7 +145,6 @@ export default {
         }),
         ...(this.calcMap & CALC_MASK.t && {
           top: typeof this.t === "number" ? this.t + "px" : this.t
-          // top: parseInt(this.t / 30 ) * 30 + "px"
         })
       };
     }
@@ -351,10 +352,10 @@ export default {
           eventY = event.clientY;
           eventX = event.clientX;
         }
-        // console.log("offsetTop",this.$el.offsetTop)
+        console.log("offsetTop",this.$el.offsetTop)
 
-        // console.log("eventY:",eventY," eventX", eventX)
-        // console.log("offsetX:",this.offsetX," offsetY", this.offsetY)
+        console.log("eventY:",eventY," eventX", eventX)
+        console.log("offsetX:",this.offsetX," offsetY", this.offsetY)
         if (this.maximize && this.prevState) {
           const parentWidth = this.parent.width;
           const parentHeight = this.parent.height;
@@ -449,7 +450,7 @@ export default {
         // this.mouseX = eventX;
         this.mouseX = 80;
         this.mouseY = eventY;
-        // console.log("this.mouseX",this.mouseX," this.mouseY",this.mouseY)
+        console.log("this.mouseX",this.mouseX," this.mouseY",this.mouseY)
         const eventName = !this.dragState ? "resize:move" : "drag:move";
         this.emitEvent(eventName);
       }
@@ -484,6 +485,7 @@ export default {
       }
     },
     handleUp() {
+      const tempVal = this.resizeState
       if (this.resizeState !== 0) {
         this.resizeState = 0;
         document.body.style.cursor = "";
@@ -491,6 +493,48 @@ export default {
         this.emitEvent(eventName);
         this.dragState = false;
       }
+      this.transFormValue(tempVal)
+    },
+    transFormValue(tempVal){
+      // 上边吸顶
+      if(tempVal === 8){
+        for (let [key, value] of timeMap){
+          if(this.t >= key[0] && this.t<=key[1]){
+            this.height += Math.abs(this.t - value)
+            this.t  =  value
+          }
+        }
+      }
+      // 下边吸附
+      if(tempVal === 2){
+        const bottomHeight = this.height + this.t
+        for (let [key, value] of timeMap){
+          if(bottomHeight >= key[0] && bottomHeight<=key[1]){
+            const topRightPos = (bottomHeight - value)
+            if(topRightPos>=0){
+              this.height = this.height -topRightPos
+            } else {
+              this.height += Math.abs(topRightPos)
+            }
+          }
+        }
+      }
+      // 滑动吸附
+      if(tempVal === 15){
+        for (let [key, value] of timeMap){
+          if(this.t >= key[0] && this.t<=key[1]){
+            this.t  =  value
+          }
+        }
+      }
+    },
+    initDivBox(top){
+      for (let [key, value] of timeMap){
+        if(top>= key[0] && top<=key[1]){
+          this.t  =  value
+        }
+      }
+      this.height = 60;
     }
   }
 };

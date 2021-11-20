@@ -173,7 +173,7 @@ export default {
       this.blockArray.map((cur, index)=>{
         // console.log(this.t, cur[0],cur[1],'1111111111')
         if(this.t<=cur[1] && this.t>=cur[0]){
-          return;
+          // return;
         }
         else if(bottomValue>=cur[0] && bottomValue<=cur[1]){
           this.h = cur[0]- this.t
@@ -192,6 +192,9 @@ export default {
         if(topValue<=cur[1] && topValue>=cur[0]){
           // 特殊处理
           this.t = cur[1]
+        }
+        else if(bottomValue>=cur[0] && bottomValue<=cur[1]){
+          this.t = cur[0] - this.height
         }
         else {
           typeof value === "number" && (this.t = value)
@@ -345,6 +348,7 @@ export default {
         top: this.t,
         width: this.w,
         height: this.h,
+        offsetTop:this.$el.offsetTop,
         ...additionalOptions
       });
     },
@@ -466,17 +470,19 @@ export default {
             this.offsetY = diffY - (diffY = -this.t);
 
           this.calcMap & CALC_MASK.t && (this.t += diffY);
+          /**
+           * qz*/
           let flag = true;
-          // const topValue = value;
-          // this.blockArray.map((cur)=>{
-          //   if(topValue<=cur[1] && topValue>=cur[0]){
-          //     // 特殊处理
-          //     flag = false
-          //   }
-          //   else {
-          //     flag = true
-          //   }
-          // })
+          const topValue = this.t;
+          this.blockArray.map((cur)=>{
+            if(topValue<=cur[1] && topValue>=cur[0]){
+              // 特殊处理
+              flag = false
+            }
+            else {
+              flag = true
+            }
+          })
           this.calcMap & CALC_MASK.h && flag && (this.h -= this.dragState ? 0 : diffY);
         }
 

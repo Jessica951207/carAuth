@@ -1,17 +1,17 @@
 <template>
   <div>
-    <div class="boxContainer">
+    <div class="boxContainer" @click="createComp">
       <div class="boxCell" v-for="(item,index) in timeItems" :key="item.id" :style="{top: item.top + `px` }">
         {{item.time}}
       </div>
     </div>
-    <div class="container">
+    <div class="container" :style="containerTop" >
       <drag-resize class="resizable" ref="resizableComponent"
                      :dragSelector="dragSelector"
                      :active="handlers" :fit-parent="fit" :maximize="maximize"
                      :max-width="checkEmpty(maxW)" :max-height="checkEmpty(maxH)"
                      :min-width="checkEmpty(minW)" :min-height="checkEmpty(minH)"
-                     :width="width" :height="height" :blockArray="blockArr"
+                     :width="width" :height="height" :blockArray="blockArray"
                      :left="left" :top="top"
                      @mount="eHandler"
                      @resize:move="eHandler" @resize:start="eHandler" @resize:end="eHandler"
@@ -36,9 +36,8 @@
 <!--          <div class="drag-container-2">drag_2</div>-->
         </div>
       </drag-resize>
-      <div class="blackBlock"></div>
     </div>
-
+    <div class="forbiddenBlock"></div>
   </div>
 </template>
 
@@ -127,8 +126,34 @@ export default {
       ],
       startTime:"",
       endTime:"",
-      blockArr:[[240,420]]
+      blockArray:[[240,420]]
     };
+  },
+  computed: {
+    containerTop(){
+      let offsetTop = this.offsetTop
+      // if(this.blockArray.length == 0){
+      //   return{
+      //     top:'0',
+      //     height:'800px'
+      //   }
+      // }else{
+      //   this.blockArray.reduce((cur,pre) => {
+      //     if(offsetTop > cur[0] && offsetTop < cur[1]){
+      //       return {
+      //         top:0,
+      //         height: 0
+      //       }
+      //     }else{
+      //       return{
+      //         top:pre[1]?pre[1]+'px':0,
+      //         height:pre[1]?cur[0]-pre[1]+"px":cur[0]
+      //       }
+      //     }
+      //   })
+      // }
+
+    }
   },
   methods: {
     eHandler(data) {
@@ -154,22 +179,21 @@ export default {
           this.endTime = cur.time
         }
       })
-      // console.log("startTime",this.startTime,this.endTime)
 
-      // console.log("**********",Math.round(data.top),Math.round(data.height));
-      // if(Math.round(data.top) >= 60){
-        // startTime = 7 + Math.round(data.top) / 60
-        // console.log(Math.round(data.top) / 60,Math.round(data.top) / 60)
-      // }else {
-        // startTime = "07:" + data.top
-        // console.log("startTime",startTime)
-      // }
       // todo later 匹配map值
       console.log( timeMap)
 
     },
     checkEmpty(value) {
       return typeof value !== "number" ? 0 : value;
+    },
+    createComp(event){
+      for (let [key, value] of timeMap){
+        if(event.clientY >= key[0] && event.clientY<=key[1]){
+          this.height = 60
+          this.top = value - 30;
+        }
+      }
     }
   },
   filters: {
@@ -282,7 +306,7 @@ body, html {
   position: absolute;
   left: 0;
 }
-.blackBlock{
+.forbiddenBlock{
   width: 100%;
   height: 180px;
   background: #7d7d7d;

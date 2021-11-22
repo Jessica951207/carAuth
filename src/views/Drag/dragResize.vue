@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import {timeMap} from "./contant";
+
 const ELEMENT_MASK = {
   "resizable-r": { bit: 0b0001, cursor: "e-resize" },
   "resizable-rb": { bit: 0b0011, cursor: "se-resize" },
@@ -24,7 +26,7 @@ const ELEMENT_MASK = {
   "resizable-lt": { bit: 0b1100, cursor: "nw-resize" },
   "resizable-t": { bit: 0b1000, cursor: "n-resize" },
   "resizable-rt": { bit: 0b1001, cursor: "ne-resize" },
-  "drag-el": { bit: 0b1111, cursor: "pointer" }
+  "drag-el": { bit: 0b1111, cursor: "pointer", type: '111111' }
 };
 
 const CALC_MASK = {
@@ -33,7 +35,7 @@ const CALC_MASK = {
   w: 0b0100,
   h: 0b1000
 };
-
+let tempHeight = ''
 export default {
   name: "dragResize",
   props: {
@@ -95,6 +97,9 @@ export default {
         ["l", "t", "w", "h"].filter(value => val.indexOf(value) !== -1)
           .length === val.length,
       type: Array
+    },
+    blockArray: {
+      default: [],
     }
   },
   emits: [
@@ -143,7 +148,6 @@ export default {
         }),
         ...(this.calcMap & CALC_MASK.t && {
           top: typeof this.t === "number" ? this.t + "px" : this.t
-          // top: parseInt(this.t / 30 ) * 30 + "px"
         })
       };
     }
@@ -165,14 +169,37 @@ export default {
       typeof value === "number" && (this.w = value);
     },
     height(value) {
-      typeof value === "number" && (this.h = value);
+      const bottomValue = this.t+ value
+      this.blockArray.map((cur, index)=>{
+        // console.log(this.t, cur[0],cur[1],'1111111111')
+        if(this.t<=cur[1] && this.t>=cur[0]){
+          // return;
+        }
+        else if(bottomValue>=cur[0] && bottomValue<=cur[1]){
+          this.h = cur[0]- this.t
+        } else {
+          typeof value === "number" && (this.h = value);
+        }
+      })
     },
     left(value) {
       typeof value === "number" && (this.l = value);
     },
     top(value) {
-      // console.log("-----------------this.$el.offsetTop",this.$el.offsetTop,value)
-      typeof value === "number" && (this.t = value);
+      const topValue = value;
+      const bottomValue = this.height+ value
+      this.blockArray.map((cur)=>{
+        if(topValue<=cur[1] && topValue>=cur[0]){
+          // 特殊处理
+          this.t = cur[1]
+        }
+        else if(bottomValue>=cur[0] && bottomValue<=cur[1]){
+          this.t = cur[0] - this.height
+        }
+        else {
+          typeof value === "number" && (this.t = value)
+        }
+      })
 
     },
     dragSelector(selector) {
@@ -321,6 +348,7 @@ export default {
         top: this.t,
         width: this.w,
         height: this.h,
+        offsetTop:this.$el.offsetTop,
         ...additionalOptions
       });
     },
@@ -351,10 +379,10 @@ export default {
           eventY = event.clientY;
           eventX = event.clientX;
         }
-        // console.log("offsetTop",this.$el.offsetTop)
+        console.log("offsetTop",this.$el.offsetTop)
 
-        // console.log("eventY:",eventY," eventX", eventX)
-        // console.log("offsetX:",this.offsetX," offsetY", this.offsetY)
+        console.log("eventY:",eventY," eventX", eventX)
+        console.log("offsetX:",this.offsetX," offsetY", this.offsetY)
         if (this.maximize && this.prevState) {
           const parentWidth = this.parent.width;
           const parentHeight = this.parent.height;
@@ -374,25 +402,25 @@ export default {
           diffY /= scaleY;
         }
         this.offsetX = this.offsetY = 0;
-        if (this.resizeState & ELEMENT_MASK["resizable-r"].bit) {
-          if (!this.dragState && this.w + diffX < this.minW)
-            this.offsetX = diffX - (diffX = this.minW - this.w);
-          else if (
-            !this.dragState &&
-            this.maxW &&
-            this.w + diffX > this.maxW &&
-            (!this.fitParent || this.w + this.l < this.parent.width)
-          )
-            this.offsetX = diffX - (diffX = this.maxW - this.w);
-          else if (
-            this.fitParent &&
-            this.l + this.w + diffX > this.parent.width
-          )
-            this.offsetX =
-              diffX - (diffX = this.parent.width - this.l - this.w);
-
-          this.calcMap & CALC_MASK.w && (this.w += this.dragState ? 0 : diffX);
-        }
+        // if (this.resizeState & ELEMENT_MASK["resizable-r"].bit) {
+        //   if (!this.dragState && this.w + diffX < this.minW)
+        //     this.offsetX = diffX - (diffX = this.minW - this.w);
+        //   else if (
+        //     !this.dragState &&
+        //     this.maxW &&
+        //     this.w + diffX > this.maxW &&
+        //     (!this.fitParent || this.w + this.l < this.parent.width)
+        //   )
+        //     this.offsetX = diffX - (diffX = this.maxW - this.w);
+        //   else if (
+        //     this.fitParent &&
+        //     this.l + this.w + diffX > this.parent.width
+        //   )
+        //     this.offsetX =
+        //       diffX - (diffX = this.parent.width - this.l - this.w);
+        //
+        //   this.calcMap & CALC_MASK.w && (this.w += this.dragState ? 0 : diffX);
+        // }
         if (this.resizeState & ELEMENT_MASK["resizable-b"].bit) {
           if (!this.dragState && this.h + diffY < this.minH)
             this.offsetY = diffY - (diffY = this.minH - this.h);
@@ -412,22 +440,22 @@ export default {
 
           this.calcMap & CALC_MASK.h && (this.h += this.dragState ? 0 : diffY);
         }
-        if (this.resizeState & ELEMENT_MASK["resizable-l"].bit) {
-          if (!this.dragState && this.w - diffX < this.minW)
-            this.offsetX = diffX - (diffX = this.w - this.minW);
-          else if (
-            !this.dragState &&
-            this.maxW &&
-            this.w - diffX > this.maxW &&
-            this.l >= 0
-          )
-            this.offsetX = diffX - (diffX = this.w - this.maxW);
-          else if (this.fitParent && this.l + diffX < 0)
-            this.offsetX = diffX - (diffX = -this.l);
-
-          this.calcMap & CALC_MASK.l && (this.l += diffX);
-          this.calcMap & CALC_MASK.w && (this.w -= this.dragState ? 0 : diffX);
-        }
+        // if (this.resizeState & ELEMENT_MASK["resizable-l"].bit) {
+        //   if (!this.dragState && this.w - diffX < this.minW)
+        //     this.offsetX = diffX - (diffX = this.w - this.minW);
+        //   else if (
+        //     !this.dragState &&
+        //     this.maxW &&
+        //     this.w - diffX > this.maxW &&
+        //     this.l >= 0
+        //   )
+        //     this.offsetX = diffX - (diffX = this.w - this.maxW);
+        //   else if (this.fitParent && this.l + diffX < 0)
+        //     this.offsetX = diffX - (diffX = -this.l);
+        //
+        //   this.calcMap & CALC_MASK.l && (this.l += diffX);
+        //   this.calcMap & CALC_MASK.w && (this.w -= this.dragState ? 0 : diffX);
+        // }
         if (this.resizeState & ELEMENT_MASK["resizable-t"].bit) {
           if (!this.dragState && this.h - diffY < this.minH)
             this.offsetY = diffY - (diffY = this.h - this.minH);
@@ -442,7 +470,20 @@ export default {
             this.offsetY = diffY - (diffY = -this.t);
 
           this.calcMap & CALC_MASK.t && (this.t += diffY);
-          this.calcMap & CALC_MASK.h && (this.h -= this.dragState ? 0 : diffY);
+          /**
+           * qz*/
+          let flag = true;
+          const topValue = this.t;
+          this.blockArray.map((cur)=>{
+            if(topValue<=cur[1] && topValue>=cur[0]){
+              // 特殊处理
+              flag = false
+            }
+            else {
+              flag = true
+            }
+          })
+          this.calcMap & CALC_MASK.h && flag && (this.h -= this.dragState ? 0 : diffY);
         }
 
         // console.log("this.top",this.top)
@@ -484,6 +525,7 @@ export default {
       }
     },
     handleUp() {
+      const tempVal = this.resizeState
       if (this.resizeState !== 0) {
         this.resizeState = 0;
         document.body.style.cursor = "";
@@ -491,6 +533,48 @@ export default {
         this.emitEvent(eventName);
         this.dragState = false;
       }
+      this.transFormValue(tempVal)
+    },
+    transFormValue(tempVal){
+      // 上边吸顶
+      if(tempVal === 8){
+        for (let [key, value] of timeMap){
+          if(this.t >= key[0] && this.t<=key[1]){
+            this.height += Math.abs(this.t - value)
+            this.t  =  value
+          }
+        }
+      }
+      // 下边吸附
+      if(tempVal === 2){
+        const bottomHeight = this.height + this.t
+        for (let [key, value] of timeMap){
+          if(bottomHeight >= key[0] && bottomHeight<=key[1]){
+            const topRightPos = (bottomHeight - value)
+            if(topRightPos>=0){
+              this.height = this.height -topRightPos
+            } else {
+              this.height += Math.abs(topRightPos)
+            }
+          }
+        }
+      }
+      // 滑动吸附
+      if(tempVal === 15){
+        for (let [key, value] of timeMap){
+          if(this.t >= key[0] && this.t<=key[1]){
+            this.t  =  value
+          }
+        }
+      }
+    },
+    initDivBox(top){
+      for (let [key, value] of timeMap){
+        if(top>= key[0] && top<=key[1]){
+          this.t  =  value
+        }
+      }
+      this.height = 60;
     }
   }
 };

@@ -1,12 +1,40 @@
 <template>
   <div>
-    <div class="boxContainer" @click="createComp">
-      <div class="boxCell" v-for="(item,index) in timeItems" :key="item.id" :style="{top: item.top + `px` }">
-        {{item.time}}
+    <div class="navTop">
+      <van-nav-bar
+        title=""
+        left-text=""
+        left-arrow
+        @click-left="onClickLeft"
+        class="navBar"
+      />
+      <div class="navTitle">
+        <div class="detailItem">
+          <div class="blockItem blockOne"></div>
+          <span>深圳嘉里营业部</span>
+        </div>
+        <div class="detailItem">
+          <div class="blockItem blockTwo"></div>
+          <span>2021-11-17 08:00-11:00</span>
+        </div>
+        <div class="detailItem">
+          <div class="blockItem blockThree"></div>
+          <span>会议室1</span>
+        </div>
+<!--        <img src="./src/assets/calendar.png" alt="">-->
+<!--        <img :src="calendarIcon" alt="">-->
       </div>
     </div>
-    <div class="container" :style="containerTop" >
-      <drag-resize class="resizable" ref="resizableComponent"
+    <div class="marginGrey"></div>
+    <div class="dragTimeBlock">
+      <div class="timeContainer" @click="createComp">
+        <div class="timeCell" v-for="(item,index) in timeItems" :key="item.id" :style="{top: item.top + `px` }">
+          <span class="timeMoment" v-if="item.show">{{item.time}}</span>
+          <div class="line" v-if="item.show"></div>
+        </div>
+      </div>
+      <div class="container" :style="containerTop" >
+        <drag-resize class="resizable" ref="resizableComponent"
                      :dragSelector="dragSelector"
                      :active="handlers" :fit-parent="fit" :maximize="maximize"
                      :max-width="checkEmpty(maxW)" :max-height="checkEmpty(maxH)"
@@ -16,117 +44,67 @@
                      @mount="eHandler"
                      @resize:move="eHandler" @resize:start="eHandler" @resize:end="eHandler"
                      @drag:move="eHandler" @drag:start="eHandler" @drag:end="eHandler" @maximize="eHandler"
-      >
-        <div class="block">
-<!--          <div class="drag-container-1"><span>drag_1</span></div>-->
-          <div class="table-container">
-            <table>
-              <tr>
-                <td>开始时间：{{this.startTime}}</td>
-<!--                <td>width:{{ width }}</td>-->
-                <td>height:{{ height }}</td>
-              </tr>
-              <tr>
-                <td>结束时间：{{this.endTime}}</td>
-<!--                <td>left:{{ left }}</td>-->
-                <td>top:{{ top }}</td>
-              </tr>
-            </table>
+        >
+          <div class="block">
+            <!--          <div class="drag-container-1"><span>drag_1</span></div>-->
+            <div class="table-container">
+              Reserve {{this.startTime}} - {{this.endTime}}
+<!--              <table>-->
+<!--                <tr>-->
+<!--                  <td>开始时间：{{this.startTime}}</td>-->
+<!--                  &lt;!&ndash;                <td>width:{{ width }}</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                  <td>height:{{ height }}</td>&ndash;&gt;-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                  <td>结束时间：{{this.endTime}}</td>-->
+<!--                  &lt;!&ndash;                <td>left:{{ left }}</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                  <td>top:{{ top }}</td>&ndash;&gt;-->
+<!--                </tr>-->
+<!--              </table>-->
+            </div>
+            <!--          <div class="drag-container-2">drag_2</div>-->
           </div>
-<!--          <div class="drag-container-2">drag_2</div>-->
-        </div>
-      </drag-resize>
+        </drag-resize>
+      </div>
+      <div class="forbiddenBlock">
+        <p class="mettingRoom">Huawei Workshop</p>
+        <p class="mettingPerson">Helen CY Chan, Support - GTS</p>
+      </div>
     </div>
-    <div class="forbiddenBlock"></div>
+    <div class="bottomPart">
+      <div class="confirmButton">
+        确认
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script>
 // import VueResizable from 'vue-resizable'
 import DragResize from "./dragResize";
-import {timeMap} from "./contant";
+import {timeMap,timeItems} from "./contant";
 
 export default {
   name: "drag",
   components: {DragResize },
   data() {
-    const tW = 300;
-    const tH = 60;
+    const tW = 295;
+    const tH = 58;
     return {
       handlers: [  'b', 't'],
       // left: `calc( 50% - ${tW / 2}px)`, top: `calc(50% - ${tH / 2}px)`,
-      left: `80px`, top: `0`,
+      left: `67px`, top: `0`,
       height: tH, width: tW,
       maxW: 300, maxH: 1000,
       minW: 100, minH: 60,
       fit: true, maximize: false, event: '',
       dragSelector: ".drag-container-1, .drag-container-2,.table-container",
-      timeItems:[
-        {
-          id:7,
-          time:"07:00",
-          top:"0"
-        },
-        {
-          id:7.5,
-          time:"07:30",
-          top:"30",
-          hide:true
-        },
-        {
-          id:8,
-          time:"08:00",
-          top:"60"
-        },
-        {
-          id:9,
-          time:"09:00",
-          top:"120"
-        },
-        {
-          id:10,
-          time:"10:00",
-          top:"180"
-        },
-        {
-          id:11,
-          time:"11:00",
-          top:"240"
-        },
-        {
-          id:12,
-          time:"12:00",
-          top:"300"
-        },
-        {
-          id:13,
-          time:"13:00",
-          top:"360"
-        },
-        {
-          id:14,
-          time:"14:00",
-          top:"420"
-        },
-        {
-          id:15,
-          time:"15:00",
-          top:"480"
-        },
-        {
-          id:16,
-          time:"16:00",
-          top:"540"
-        },
-        {
-          id:17,
-          time:"17:00",
-          top:"600"
-        },
-      ],
+      timeItems:timeItems,
       startTime:"",
       endTime:"",
-      blockArray:[[240,420]]
+      blockArray:[[300,420]],
+      calendarIcon:"../assets/car.png"
     };
   },
   computed: {
@@ -156,6 +134,32 @@ export default {
     }
   },
   methods: {
+    initDragBlock(){
+      let topDeal = parseInt(this.top / 30) * 30;
+      this.timeItems.map(cur => {
+        if(cur.top == topDeal){
+          this.startTime = cur.time
+        }
+      })
+      let bottomDeal = parseInt((this.top + this.height) / 30) * 30;
+      this.timeItems.map(cur => {
+        if(cur.top == bottomDeal){
+          this.endTime = cur.time
+        }
+      })
+    },
+    onClickLeft(){
+      console.log("成功返回上一页")
+    },
+    createComp(event){
+      for (let [key, value] of timeMap){
+        if(event.clientY - 220 >= key[0] && event.clientY - 220 <= key[1]){
+          this.height = 60
+          this.top = value;
+          this.initDragBlock();
+        }
+      }
+    },
     eHandler(data) {
       // console.log("data",data)
       this.width = data.width;
@@ -167,34 +171,15 @@ export default {
         this.maximize = data.state;
       }
 
-      let topDeal = parseInt(data.top / 30) * 30;
-      this.timeItems.map(cur => {
-        if(cur.top == topDeal){
-          this.startTime = cur.time
-        }
-      })
-      let bottomDeal = parseInt((data.top + data.height) / 30) * 30;
-      this.timeItems.map(cur => {
-        if(cur.top == bottomDeal){
-          this.endTime = cur.time
-        }
-      })
+      this.initDragBlock();
 
-      // todo later 匹配map值
       console.log( timeMap)
 
     },
     checkEmpty(value) {
       return typeof value !== "number" ? 0 : value;
     },
-    createComp(event){
-      for (let [key, value] of timeMap){
-        if(event.clientY >= key[0] && event.clientY<=key[1]){
-          this.height = 60
-          this.top = value - 30;
-        }
-      }
-    }
+
   },
   filters: {
     checkEmpty(value) {
@@ -204,18 +189,8 @@ export default {
 }
 </script>
 
+
 <style scoped>
-.block {
-  height: 100%;
-  width: 100%;
-  background-color: aqua;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-</style>
-<style>
 body, html {
   height: 100%;
   width: 100%;
@@ -223,27 +198,43 @@ body, html {
   padding: 0;
   overflow: auto;
 }
-
+.bottomPart{
+  width: 100%;
+  height: 100px;
+  position: absolute;
+  top:1060px;
+  background: #B5B5B5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.confirmButton{
+  width:180px;
+  height: 50px;
+  background: #E0301E;
+  color: #ffffff;
+  border-radius: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.marginGrey{
+  width: 100%;
+  height: 40px;
+  background: #F2F2F2;
+}
+.dragTimeBlock{
+  position: relative;
+}
 .container {
   width: 100%;
-  /*width: 300px;*/
-  height: 800px;
+  height: 850px;
   display: inline-block;
-  border: 1px solid #dddddd;
+  /*border: 1px solid #dddddd;*/
   background: #ffffff;
   color: #333333;;
   float: left;
-  /*position: absolute;*/
-  /*right: 0;*/
-  /*top: 0;*/
-}
 
-#block1 {
-  border: solid black 1px;
-  height: 300px;
-  width: 300px;
-  display: inline-block;
-  float: left;
 }
 
 .resizable {
@@ -251,11 +242,12 @@ body, html {
   width: 150px;
   height: 150px;
   padding: 0;
-  border: 1px solid #003eff;
-  background: #007fff;
+  border: 2px solid #CF251D;
+  background: #ffffff;
   font-weight: normal;
-  color: #ffffff;
+  color: #CF251D;
   position: relative;
+  z-index: 1;
 }
 
 .table-block {
@@ -291,27 +283,92 @@ body, html {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  /*align-items: center;*/
 }
-.boxContainer{
+.timeContainer{
   width: 100%;
   /*position: absolute;*/
-  /*top:0;*/
+  /*top:200px;*/
   /*left: 0;*/
 }
-.boxCell{
-  width: 100%;
+.timeCell{
+  width: 94%;
+  padding: 0 3%;
   height: 60px;
-  border-top: 1px solid #bfbfbf;
   position: absolute;
   left: 0;
+  background: #F2F2F2;
+  display: flex;
+  justify-content: center;
+  align-content: center;
 }
-.forbiddenBlock{
+.timeMoment{
+  margin-right: 5%;
+  margin-top: -10px;
+}
+.line{
+  border-top: 1px solid #bfbfbf;
   width: 100%;
-  height: 180px;
-  background: #7d7d7d;
+  height: 1px;
+}
+
+.forbiddenBlock{
+  width: 70%;
+  height: 120px;
+  background: #FFCDCD;
   position: absolute;
-  top: 240px;
+  top: 300px;
+  padding: 0 5% ;
+  left: 67px;
+}
+.mettingRoom{
+  font-size: 16px;
+  color: #404041;
+}
+.mettingPerson{
+  font-size: 14px;
+  color: #6D6E71;
+}
+.block {
+  height: 100%;
+  width: 100%;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.navBar{
+  background: #BE1722;
+}
+.navTop .van-nav-bar  >>> .van-icon {
+  color: #F2F2F2;
+}
+.navTop >>> .van-nav-bar__arrow{
+  font-size: 22px;
+}
+.navTitle{
+  padding: 1rem 0;
+}
+.detailItem{
+  display: flex;
+  align-content: center;
+  color: #010001;
+  font-size: 1rem;
+}
+.blockItem{
+  width:33px;
+  height: 24px;
+  margin-right:1rem ;
+}
+.blockOne{
+  background: #630204;
+}
+.blockTwo{
+  background: #BB1A28;
+}
+.blockThree{
+  background: #E0301E;
 }
 
 </style>

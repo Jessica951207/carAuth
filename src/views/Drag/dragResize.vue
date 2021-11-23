@@ -189,14 +189,14 @@ export default {
     },
     top(value) {
       const topValue = value;
-      const bottomValue = this.height+ value
+      const bottomValue = this.h+ value
       this.blockArray.map((cur)=>{
         if(topValue<=cur[1] && topValue>=cur[0]){
           // 特殊处理
           this.t = cur[1]
         }
         else if(bottomValue>=cur[0] && bottomValue<=cur[1]){
-          this.t = cur[0] - this.height
+          this.t = cur[0] - this.h
         }
         else {
           typeof value === "number" && (this.t = value)
@@ -383,8 +383,7 @@ export default {
         }
         console.log("offsetTop",this.$el.offsetTop)
 
-        console.log("eventY:",eventY," eventX", eventX)
-        console.log("offsetX:",this.offsetX," offsetY", this.offsetY)
+        console.log("eventY:",eventY)
         if (this.maximize && this.prevState) {
           const parentWidth = this.parent.width;
           const parentHeight = this.parent.height;
@@ -441,6 +440,7 @@ export default {
               diffY - (diffY = this.parent.height - this.t - this.h);
 
           this.calcMap & CALC_MASK.h && (this.h += this.dragState ? 0 : diffY);
+          console.log("this.offsetY",this.offsetY)
         }
         // if (this.resizeState & ELEMENT_MASK["resizable-l"].bit) {
         //   if (!this.dragState && this.w - diffX < this.minW)
@@ -492,7 +492,7 @@ export default {
         this.mouseX = eventX;
         // this.mouseX = 80;
         this.mouseY = eventY;
-        // console.log("this.mouseX",this.mouseX," this.mouseY",this.mouseY)
+        console.log("this.mouseX",this.mouseX," this.mouseY",this.mouseY)
         const eventName = !this.dragState ? "resize:move" : "drag:move";
         this.emitEvent(eventName);
       }
@@ -542,21 +542,21 @@ export default {
       if(tempVal === 8){
         for (let [key, value] of timeMap){
           if(this.t >= key[0] && this.t<=key[1]){
-            this.height += Math.abs(this.t - value)
+            this.h += Math.abs(this.t - value)
             this.t  =  value
           }
         }
       }
       // 下边吸附
       if(tempVal === 2){
-        const bottomHeight = this.height + this.t
+        const bottomHeight = this.h + this.t
         for (let [key, value] of timeMap){
           if(bottomHeight >= key[0] && bottomHeight<=key[1]){
             const topRightPos = (bottomHeight - value)
             if(topRightPos>=0){
-              this.height = this.height -topRightPos
+              this.h = this.h - topRightPos
             } else {
-              this.height += Math.abs(topRightPos)
+              this.h += Math.abs(topRightPos)
             }
           }
         }

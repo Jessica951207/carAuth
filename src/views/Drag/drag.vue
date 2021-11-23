@@ -66,8 +66,9 @@
           </div>
         </drag-resize>
       </div>
-      <div class="forbiddenBlock">
-        <p class="mettingRoom">Huawei Workshop</p>
+<!--     :style="{top:`${item[i][0]}px`,height:`${item[i][1]-item[i][0]}px`}"-->
+      <div class="forbiddenBlock" v-for="(item,i) in blockArray" :style="{top: item[i][0] +'px'}">
+        <p class="mettingRoom">Huawei Workshop{{item[i]}}</p>
         <p class="mettingPerson">Helen CY Chan, Support - GTS</p>
       </div>
     </div>
@@ -90,24 +91,29 @@ export default {
   components: {DragResize },
   data() {
     const tW = 295;
-    const tH = 58;
+    const tH = 60;
     return {
       handlers: [  'b', 't'],
       // left: `calc( 50% - ${tW / 2}px)`, top: `calc(50% - ${tH / 2}px)`,
       left: `67px`, top: `0`,
       height: tH, width: tW,
       maxW: 300, maxH: 1000,
-      minW: 100, minH: 60,
+      minW: 100, minH: 15,
       fit: true, maximize: false, event: '',
       dragSelector: ".drag-container-1, .drag-container-2,.table-container",
       timeItems:timeItems,
       startTime:"",
       endTime:"",
-      blockArray:[[300,420]],
+      blockArray:[[60,120],[300,420]],
       calendarIcon:"../assets/car.png"
     };
   },
   computed: {
+    style(){
+      return{
+
+      }
+    },
     containerTop(){
       let offsetTop = this.offsetTop
       // if(this.blockArray.length == 0){
@@ -133,33 +139,13 @@ export default {
 
     }
   },
+  watch:{
+    startTime(newValue){
+      console.log("newValue",newValue)
+      // this.startTime = newValue;
+    }
+  },
   methods: {
-    initDragBlock(){
-      let topDeal = parseInt(this.top / 30) * 30;
-      this.timeItems.map(cur => {
-        if(cur.top == topDeal){
-          this.startTime = cur.time
-        }
-      })
-      let bottomDeal = parseInt((this.top + this.height) / 30) * 30;
-      this.timeItems.map(cur => {
-        if(cur.top == bottomDeal){
-          this.endTime = cur.time
-        }
-      })
-    },
-    onClickLeft(){
-      console.log("成功返回上一页")
-    },
-    createComp(event){
-      for (let [key, value] of timeMap){
-        if(event.clientY - 220 >= key[0] && event.clientY - 220 <= key[1]){
-          this.height = 60
-          this.top = value;
-          this.initDragBlock();
-        }
-      }
-    },
     eHandler(data) {
       // console.log("data",data)
       this.width = data.width;
@@ -171,13 +157,41 @@ export default {
         this.maximize = data.state;
       }
 
-      this.initDragBlock();
+      this.getStartAndEndTime();
 
-      console.log( timeMap)
+      // console.log( timeMap)
 
     },
     checkEmpty(value) {
       return typeof value !== "number" ? 0 : value;
+    },
+    onClickLeft(){
+      console.log("成功返回上一页")
+    },
+    getStartAndEndTime(){
+      console.log("111111",this.top,this.height)
+      let topDeal = parseInt(this.top / 15) * 15;
+      this.timeItems.map(cur => {
+        if(cur.top == topDeal){
+          this.startTime = cur.time
+        }
+      })
+      let bottomDeal = parseInt((this.top + this.height) / 15) * 15;
+      this.timeItems.map(cur => {
+        if(cur.top == bottomDeal){
+          this.endTime = cur.time
+        }
+      })
+    },
+    createComp(event){
+      // console.log("event.pageY ",event.pageY)
+      for (let [key, value] of timeMap){
+        if(event.pageY -200 >= key[0] && event.pageY - 200 <= key[1]){
+          this.height = 60
+          this.top = value;
+          this.getStartAndEndTime();
+        }
+      }
     },
 
   },
@@ -248,6 +262,7 @@ body, html {
   color: #CF251D;
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
 }
 
 .table-block {
@@ -318,6 +333,7 @@ body, html {
   background: #FFCDCD;
   position: absolute;
   top: 300px;
+  /*top: 0;*/
   padding: 0 5% ;
   left: 67px;
 }

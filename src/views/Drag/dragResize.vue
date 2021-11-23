@@ -10,7 +10,9 @@
       v-show="!maximize"
       :key="el"
       :class="'resizable-' + el"
-    />
+    >
+      <div class="whiteCircle"></div>
+    </div>
   </div>
 </template>
 
@@ -487,8 +489,8 @@ export default {
         }
 
         // console.log("this.top",this.top)
-        // this.mouseX = eventX;
-        this.mouseX = 80;
+        this.mouseX = eventX;
+        // this.mouseX = 80;
         this.mouseY = eventY;
         // console.log("this.mouseX",this.mouseX," this.mouseY",this.mouseY)
         const eventName = !this.dragState ? "resize:move" : "drag:move";
@@ -629,6 +631,16 @@ export default {
   width: 100%;
   left: 0;
 }
+.resizable-b .whiteCircle{
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  position: absolute;
+  right: 20px;
+  top: -2px;
+  border-radius: 50%;
+  border: 2px solid #CF251D;
+}
 
 .resizable-component > .resizable-lb {
   display: block;
@@ -688,6 +700,17 @@ export default {
   top: -6px;
   width: 100%;
   left: 0;
+}
+
+.resizable-t .whiteCircle{
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  position: absolute;
+  left: 20px;
+  top: -3px;
+  border-radius: 50%;
+  border: 2px solid #CF251D;
 }
 
 .resizable-component > .resizable-rt {

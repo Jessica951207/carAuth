@@ -33,7 +33,7 @@
           <div class="line" v-if="item.show"></div>
         </div>
       </div>
-      <div class="container" :style="containerTop" >
+      <div class="container" >
         <drag-resize class="resizable" ref="resizableComponent"
                      :dragSelector="dragSelector"
                      :active="handlers" :fit-parent="fit" :maximize="maximize"
@@ -89,15 +89,15 @@ export default {
   name: "drag",
   components: {DragResize },
   data() {
-    const tW = 295;
-    const tH = 60;
+    const tW = 80;
+    const tH = 30;
     return {
       handlers: [  'b', 't'],
       // left: `calc( 50% - ${tW / 2}px)`, top: `calc(50% - ${tH / 2}px)`,
       left: `67px`, top: `0`,
       height: tH, width: tW,
       maxW: 300, maxH: 1000,
-      minW: 100, minH: 15,
+      minW: 50, minH: 15,
       fit: true, maximize: false, event: '',
       dragSelector: ".drag-container-1, .drag-container-2,.table-container",
       timeItems:timeItems,
@@ -113,30 +113,6 @@ export default {
 
       }
     },
-    containerTop(){
-      let offsetTop = this.offsetTop
-      // if(this.blockArray.length == 0){
-      //   return{
-      //     top:'0',
-      //     height:'800px'
-      //   }
-      // }else{
-      //   this.blockArray.reduce((cur,pre) => {
-      //     if(offsetTop > cur[0] && offsetTop < cur[1]){
-      //       return {
-      //         top:0,
-      //         height: 0
-      //       }
-      //     }else{
-      //       return{
-      //         top:pre[1]?pre[1]+'px':0,
-      //         height:pre[1]?cur[0]-pre[1]+"px":cur[0]
-      //       }
-      //     }
-      //   })
-      // }
-
-    }
   },
   watch:{
     startTime(newValue){
@@ -183,14 +159,17 @@ export default {
       })
     },
     createComp(event){
-      // console.log("event.pageY ",event.pageY)
-      for (let [key, value] of timeMap){
-        if(event.pageY -200 >= key[0] && event.pageY - 200 <= key[1]){
-          this.height = 60
-          this.top = value;
-          this.getStartAndEndTime();
+      console.log("event.pageY ",event.pageY)
+      if(event.pageY <= 840){
+        for (let [key, value] of timeMap){
+          if(event.pageY -200 >= key[0] && event.pageY - 200 <= key[1]){
+            this.height = 30
+            this.top = value;
+            this.getStartAndEndTime();
+          }
         }
       }
+
     },
 
   },
@@ -215,7 +194,7 @@ body, html {
   width: 100%;
   height: 100px;
   position: absolute;
-  top:1060px;
+  top:860px;
   background: #B5B5B5;
   display: flex;
   justify-content: center;
@@ -241,7 +220,7 @@ body, html {
 }
 .container {
   width: 100%;
-  height: 850px;
+  height: 660px;
   display: inline-block;
   /*border: 1px solid #dddddd;*/
   background: #ffffff;
@@ -308,7 +287,7 @@ body, html {
 .timeCell{
   width: 94%;
   padding: 0 3%;
-  height: 60px;
+  height: 15px;
   position: absolute;
   left: 0;
   background: #F2F2F2;
@@ -327,23 +306,22 @@ body, html {
 }
 
 .forbiddenBlock{
-  width: 70%;
+  width: 80vw;
   height: 120px;
   background: #FFCDCD;
   position: absolute;
   top: 300px;
-  padding: 2% 4% 0 4%;
   left: 67px;
 }
 .mettingRoom{
   font-size: 16px;
   color: #404041;
-  margin: 0;
+  margin: 5px;
 }
 .mettingPerson{
   font-size: 14px;
   color: #6D6E71;
-  margin: 0;
+  margin: 5px;
 }
 .block {
   height: 100%;

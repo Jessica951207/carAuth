@@ -141,7 +141,7 @@ export default {
     style() {
       return {
         ...(this.calcMap & CALC_MASK.w && {
-          width: typeof this.w === "number" ? this.w + "px" : this.w
+          width: typeof this.w === "number" ? this.w + "vw" : this.w
         }),
         ...(this.calcMap & CALC_MASK.h && {
           height: typeof this.h === "number" ? this.h + "px" : this.h

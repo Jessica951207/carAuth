@@ -66,9 +66,8 @@
           </div>
         </drag-resize>
       </div>
-<!--     :style="{top:`${item[i][0]}px`,height:`${item[i][1]-item[i][0]}px`}"-->
-      <div class="forbiddenBlock" v-for="(item,i) in blockArray" :style="{top: item[i][0] +'px'}">
-        <p class="mettingRoom">Huawei Workshop{{item[i]}}</p>
+      <div class="forbiddenBlock" v-for="(item,i) in blockArray" :style="{top: `${item[0]}px`,height:`${item[1] - item[0]}px`}">
+        <p class="mettingRoom">Huawei Workshop{{item}}</p>
         <p class="mettingPerson">Helen CY Chan, Support - GTS</p>
       </div>
     </div>
@@ -104,7 +103,7 @@ export default {
       timeItems:timeItems,
       startTime:"",
       endTime:"",
-      blockArray:[[60,120],[300,420]],
+      blockArray:[[60,120],[300,420],[480,540]],
       calendarIcon:"../assets/car.png"
     };
   },
@@ -333,17 +332,18 @@ body, html {
   background: #FFCDCD;
   position: absolute;
   top: 300px;
-  /*top: 0;*/
-  padding: 0 5% ;
+  padding: 2% 4% 0 4%;
   left: 67px;
 }
 .mettingRoom{
   font-size: 16px;
   color: #404041;
+  margin: 0;
 }
 .mettingPerson{
   font-size: 14px;
   color: #6D6E71;
+  margin: 0;
 }
 .block {
   height: 100%;

@@ -102,6 +102,7 @@ export default {
     },
     blockArray: {
       default: [],
+      type:Array
     }
   },
   emits: [
@@ -172,36 +173,53 @@ export default {
     },
     height(value) {
       const bottomValue = this.t+ value
-      this.blockArray.map((cur, index)=>{
-        // console.log(this.t, cur[0],cur[1],'1111111111')
-        if(this.t<=cur[1] && this.t>=cur[0]){
-          // return;
+      console.log("blockArray height:",value)
+      console.log("blockArray bottomValue:",value)
+
+      for(let i=0;i<this.blockArray.length;i++){
+        let cur = this.blockArray[i]
+        console.log("blockArray top:",this.t, cur[0],cur[1],'height')
+
+        if(this.t>=cur[0] && this.t<=cur[1]){
+          console.log("blockArray 上边在禁止范围里！")
         }
         else if(bottomValue>=cur[0] && bottomValue<=cur[1]){
-          this.h = cur[0]- this.t
-        } else {
+          console.log("blockArray 下边在禁止范围里！")
+          this.h = cur[0]- this.t;
+          break;
+        }
+        else {
+          console.log("blockArray 在可滑动范围里！")
           typeof value === "number" && (this.h = value);
         }
-      })
+      }
+
     },
     left(value) {
       typeof value === "number" && (this.l = value);
     },
     top(value) {
       const topValue = value;
-      const bottomValue = this.h+ value
-      this.blockArray.map((cur)=>{
-        if(topValue<=cur[1] && topValue>=cur[0]){
+      const bottomValue = this.h+ value;
+
+      for(let i=0;i<this.blockArray.length;i++) {
+        let cur = this.blockArray[i]
+        console.log("blockArray top:",this.t, cur[0],cur[1],'top')
+        if(topValue>=cur[0] && topValue<=cur[1]){
           // 特殊处理
           this.t = cur[1]
+          break;
         }
         else if(bottomValue>=cur[0] && bottomValue<=cur[1]){
           this.t = cur[0] - this.h
+          break;
         }
         else {
           typeof value === "number" && (this.t = value)
         }
-      })
+
+      }
+
 
     },
     dragSelector(selector) {
@@ -473,18 +491,21 @@ export default {
 
           this.calcMap & CALC_MASK.t && (this.t += diffY);
           /**
-           * qz*/
+           * 特殊处理
+           */
           let flag = true;
           const topValue = this.t;
-          this.blockArray.map((cur)=>{
-            if(topValue<=cur[1] && topValue>=cur[0]){
-              // 特殊处理
+          for(let i=0;i<this.blockArray.length;i++) {
+            let cur = this.blockArray[i]
+            if(topValue>=cur[0] && topValue<=cur[1]){
               flag = false
+              break;
             }
             else {
               flag = true
             }
-          })
+          }
+
           this.calcMap & CALC_MASK.h && flag && (this.h -= this.dragState ? 0 : diffY);
         }
 
@@ -492,7 +513,7 @@ export default {
         this.mouseX = eventX;
         // this.mouseX = 80;
         this.mouseY = eventY;
-        console.log("this.mouseX",this.mouseX," this.mouseY",this.mouseY)
+        // console.log("this.mouseX",this.mouseX," this.mouseY",this.mouseY)
         const eventName = !this.dragState ? "resize:move" : "drag:move";
         this.emitEvent(eventName);
       }
@@ -570,14 +591,6 @@ export default {
         }
       }
     },
-    initDivBox(top){
-      for (let [key, value] of timeMap){
-        if(top>= key[0] && top<=key[1]){
-          this.t  =  value
-        }
-      }
-      this.height = 60;
-    }
   }
 };
 </script>

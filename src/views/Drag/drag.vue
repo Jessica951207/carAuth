@@ -83,7 +83,7 @@
 <script>
 // import VueResizable from 'vue-resizable'
 import DragResize from "./dragResize";
-import {timeMap,timeItems} from "./contant";
+import {timeMap,timeTopMap,timeItems} from "./contant";
 
 export default {
   name: "drag",
@@ -103,7 +103,8 @@ export default {
       timeItems:timeItems,
       startTime:"",
       endTime:"",
-      blockArray:[[60,120],[300,420],[480,540]],
+      blockTimeArray:[["10:15","11:00"],["14:00","16:00"],["17:00","18:00"]],
+      blockArray:[],
       calendarIcon:"../assets/car.png"
     };
   },
@@ -119,6 +120,36 @@ export default {
       console.log("newValue",newValue)
       // this.startTime = newValue;
     }
+  },
+  mounted() {
+    let nowHour = new Date().getHours()
+    let nowMin = new Date().getMinutes()
+    let shouldMin
+    if(nowMin > 0 && nowMin<=15){
+      shouldMin = 15
+    }else if(nowMin > 15 && nowMin<=30){
+      shouldMin = 30
+    }
+    else if(nowMin > 30 && nowMin<=45){
+      shouldMin = 45
+    }else if(nowMin > 45 && nowMin<=60){
+      shouldMin = "00";
+      nowHour++;
+    }
+    let now = `${nowHour}:${shouldMin}`
+    if(nowHour > 9){
+      this.blockTimeArray.push(["09:00",now])
+    }
+    // console.log(" this.blockTimeArray", this.blockTimeArray)
+
+    this.blockTimeArray.map(cur => {
+      this.blockArray.push([timeTopMap.get(cur[0]),timeTopMap.get(cur[1])])
+    })
+    // console.log("this.blockArray",this.blockArray)
+
+    this.top = (nowHour - 9 ) * 60 + nowMin
+    this.getStartAndEndTime()
+
   },
   methods: {
     eHandler(data) {

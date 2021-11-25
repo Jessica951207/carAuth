@@ -33,7 +33,7 @@
           <div class="line" v-if="item.show"></div>
         </div>
       </div>
-      <div class="container" :style="containerTop" >
+      <div class="container" >
         <drag-resize class="resizable" ref="resizableComponent"
                      :dragSelector="dragSelector"
                      :active="handlers" :fit-parent="fit" :maximize="maximize"
@@ -66,8 +66,8 @@
           </div>
         </drag-resize>
       </div>
-      <div class="forbiddenBlock">
-        <p class="mettingRoom">Huawei Workshop</p>
+      <div class="forbiddenBlock" v-for="(item,i) in blockArray" :style="{top: `${item[0]}px`,height:`${item[1] - item[0]}px`}">
+        <p class="mettingRoom">Huawei Workshop{{item}}</p>
         <p class="mettingPerson">Helen CY Chan, Support - GTS</p>
       </div>
     </div>
@@ -83,83 +83,75 @@
 <script>
 // import VueResizable from 'vue-resizable'
 import DragResize from "./dragResize";
-import {timeMap,timeItems} from "./contant";
+import {timeMap,timeTopMap,timeItems} from "./contant";
 
 export default {
   name: "drag",
   components: {DragResize },
   data() {
-    const tW = 295;
-    const tH = 58;
+    const tW = 80;
+    const tH = 30;
     return {
       handlers: [  'b', 't'],
       // left: `calc( 50% - ${tW / 2}px)`, top: `calc(50% - ${tH / 2}px)`,
       left: `67px`, top: `0`,
       height: tH, width: tW,
       maxW: 300, maxH: 1000,
-      minW: 100, minH: 60,
+      minW: 50, minH: 15,
       fit: true, maximize: false, event: '',
       dragSelector: ".drag-container-1, .drag-container-2,.table-container",
       timeItems:timeItems,
       startTime:"",
       endTime:"",
-      blockArray:[[300,420]],
+      blockTimeArray:[["10:15","11:00"],["14:00","16:00"],["17:00","18:00"]],
+      blockArray:[],
       calendarIcon:"../assets/car.png"
     };
   },
   computed: {
-    containerTop(){
-      let offsetTop = this.offsetTop
-      // if(this.blockArray.length == 0){
-      //   return{
-      //     top:'0',
-      //     height:'800px'
-      //   }
-      // }else{
-      //   this.blockArray.reduce((cur,pre) => {
-      //     if(offsetTop > cur[0] && offsetTop < cur[1]){
-      //       return {
-      //         top:0,
-      //         height: 0
-      //       }
-      //     }else{
-      //       return{
-      //         top:pre[1]?pre[1]+'px':0,
-      //         height:pre[1]?cur[0]-pre[1]+"px":cur[0]
-      //       }
-      //     }
-      //   })
-      // }
+    style(){
+      return{
 
-    }
-  },
-  methods: {
-    initDragBlock(){
-      let topDeal = parseInt(this.top / 30) * 30;
-      this.timeItems.map(cur => {
-        if(cur.top == topDeal){
-          this.startTime = cur.time
-        }
-      })
-      let bottomDeal = parseInt((this.top + this.height) / 30) * 30;
-      this.timeItems.map(cur => {
-        if(cur.top == bottomDeal){
-          this.endTime = cur.time
-        }
-      })
-    },
-    onClickLeft(){
-      console.log("成功返回上一页")
-    },
-    createComp(event){
-      for (let [key, value] of timeMap){
-        if(event.clientY - 220 >= key[0] && event.clientY - 220 <= key[1]){
-          this.height = 60
-          this.top = value;
-          this.initDragBlock();
-        }
       }
     },
+  },
+  watch:{
+    startTime(newValue){
+      console.log("newValue",newValue)
+      // this.startTime = newValue;
+    }
+  },
+  mounted() {
+    let nowHour = new Date().getHours()
+    let nowMin = new Date().getMinutes()
+    let shouldMin
+    if(nowMin > 0 && nowMin<=15){
+      shouldMin = 15
+    }else if(nowMin > 15 && nowMin<=30){
+      shouldMin = 30
+    }
+    else if(nowMin > 30 && nowMin<=45){
+      shouldMin = 45
+    }else if(nowMin > 45 && nowMin<=60){
+      shouldMin = "00";
+      nowHour++;
+    }
+    let now = `${nowHour}:${shouldMin}`
+    if(nowHour > 9){
+      this.blockTimeArray.push(["09:00",now])
+    }
+    // console.log(" this.blockTimeArray", this.blockTimeArray)
+
+    this.blockTimeArray.map(cur => {
+      this.blockArray.push([timeTopMap.get(cur[0]),timeTopMap.get(cur[1])])
+    })
+    // console.log("this.blockArray",this.blockArray)
+
+    this.top = (nowHour - 9 ) * 60 + nowMin
+    this.getStartAndEndTime()
+
+  },
+  methods: {
     eHandler(data) {
       // console.log("data",data)
       this.width = data.width;
@@ -171,13 +163,44 @@ export default {
         this.maximize = data.state;
       }
 
-      this.initDragBlock();
+      this.getStartAndEndTime();
 
-      console.log( timeMap)
+      // console.log( timeMap)
 
     },
     checkEmpty(value) {
       return typeof value !== "number" ? 0 : value;
+    },
+    onClickLeft(){
+      console.log("成功返回上一页")
+    },
+    getStartAndEndTime(){
+      console.log("111111",this.top,this.height)
+      let topDeal = parseInt(this.top / 15) * 15;
+      this.timeItems.map(cur => {
+        if(cur.top == topDeal){
+          this.startTime = cur.time
+        }
+      })
+      let bottomDeal = parseInt((this.top + this.height) / 15) * 15;
+      this.timeItems.map(cur => {
+        if(cur.top == bottomDeal){
+          this.endTime = cur.time
+        }
+      })
+    },
+    createComp(event){
+      console.log("event.pageY ",event.pageY)
+      if(event.pageY <= 840){
+        for (let [key, value] of timeMap){
+          if(event.pageY -200 >= key[0] && event.pageY - 200 <= key[1]){
+            this.height = 30
+            this.top = value;
+            this.getStartAndEndTime();
+          }
+        }
+      }
+
     },
 
   },
@@ -202,7 +225,7 @@ body, html {
   width: 100%;
   height: 100px;
   position: absolute;
-  top:1060px;
+  top:860px;
   background: #B5B5B5;
   display: flex;
   justify-content: center;
@@ -228,7 +251,7 @@ body, html {
 }
 .container {
   width: 100%;
-  height: 850px;
+  height: 660px;
   display: inline-block;
   /*border: 1px solid #dddddd;*/
   background: #ffffff;
@@ -248,6 +271,7 @@ body, html {
   color: #CF251D;
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
 }
 
 .table-block {
@@ -294,7 +318,7 @@ body, html {
 .timeCell{
   width: 94%;
   padding: 0 3%;
-  height: 60px;
+  height: 15px;
   position: absolute;
   left: 0;
   background: #F2F2F2;
@@ -313,21 +337,22 @@ body, html {
 }
 
 .forbiddenBlock{
-  width: 70%;
+  width: 80vw;
   height: 120px;
   background: #FFCDCD;
   position: absolute;
   top: 300px;
-  padding: 0 5% ;
   left: 67px;
 }
 .mettingRoom{
   font-size: 16px;
   color: #404041;
+  margin: 5px;
 }
 .mettingPerson{
   font-size: 14px;
   color: #6D6E71;
+  margin: 5px;
 }
 .block {
   height: 100%;

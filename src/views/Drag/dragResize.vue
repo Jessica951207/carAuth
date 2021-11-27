@@ -373,7 +373,8 @@ export default {
       });
     },
     handleMove(event) {
-      document.addEventListener(
+      event.cancelBubble = true;
+      document.documentElement.addEventListener(
         "touchmove",
         function(event) {
           event.stopPropagation();
@@ -382,6 +383,7 @@ export default {
         false
       )
       event.stopPropagation();
+      event.preventDefault();
       if (this.resizeState !== 0) {
         if (!this.dragState) {
           if (isNaN(this.w)) {
@@ -519,6 +521,8 @@ export default {
       }
     },
     handleDown(event) {
+      event.stopPropagation();
+      event.preventDefault();
       if (event.target.closest && event.target.closest('.resizable-component') !== this.$refs['parent'])
         return
       for (let elClass in ELEMENT_MASK) {

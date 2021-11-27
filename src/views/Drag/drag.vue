@@ -23,6 +23,7 @@
         </div>
 <!--        <img src="./src/assets/calendar.png" alt="">-->
 <!--        <img :src="calendarIcon" alt="">-->
+        <div class="circleButton" @click="showTimePicker"></div>
       </div>
     </div>
     <div class="marginGrey"></div>
@@ -116,12 +117,12 @@ export default {
     },
   },
   watch:{
-    startTime(newValue){
+    top(newValue){
       console.log("newValue",newValue)
       // this.startTime = newValue;
     }
   },
-  mounted() {
+  created() {
     let nowHour = new Date().getHours()
     let nowMin = new Date().getMinutes()
     let shouldMin
@@ -137,18 +138,34 @@ export default {
       nowHour++;
     }
     let now = `${nowHour}:${shouldMin}`
+    console.log("now",now,nowHour)
     if(nowHour > 9){
-      this.blockTimeArray.push(["09:00",now])
+      // this.blockTimeArray.push(["09:00",now])
     }
-    // console.log(" this.blockTimeArray", this.blockTimeArray)
 
+    // this.blockTimeArray.map(cur => {
+    //   if(nowHour > 9){
+    //     if(nowHour >= cur[0] && nowHour <=cur[1]){
+    //       this.blockTimeArray.push(["09:00",cur[0]])
+    //     }else if(nowHour > cur[1]){
+    //       this.blockTimeArray.push([cur[1],now])
+    //     }
+    //   }
+    // })
+    console.log(" this.blockTimeArray", this.blockTimeArray)
+    // this.top = (nowHour - 9 ) * 60 + nowMin
+    // this.top = timeTopMap.get(now)
+    console.log("this.top",this.top,now)
+    this.getStartAndEndTime()
+
+
+  },
+  mounted() {
     this.blockTimeArray.map(cur => {
       this.blockArray.push([timeTopMap.get(cur[0]),timeTopMap.get(cur[1])])
     })
     // console.log("this.blockArray",this.blockArray)
 
-    this.top = (nowHour - 9 ) * 60 + nowMin
-    this.getStartAndEndTime()
 
   },
   methods: {
@@ -200,8 +217,10 @@ export default {
           }
         }
       }
-
     },
+    showTimePicker(){
+
+    }
 
   },
   filters: {
@@ -374,6 +393,7 @@ body, html {
 }
 .navTitle{
   padding: 1rem 0;
+  position: relative;
 }
 .detailItem{
   display: flex;
@@ -395,5 +415,13 @@ body, html {
 .blockThree{
   background: #E0301E;
 }
-
+.circleButton{
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #CF251D;
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+}
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="booking">
     <div class="navTop">
       <van-nav-bar
         title=""
@@ -78,6 +78,23 @@
       </div>
     </div>
 
+    <van-popup
+      v-model="show"
+      :show="show"
+      position="bottom"
+      teleport="body"
+    >
+      <van-datetime-picker
+        v-model="currentDate"
+        type="date"
+        title=""
+        :min-date='minDate'
+        :formatter="formatter"
+        @confirm="onConfirm"
+        @cancel="onCancel"
+      />
+    </van-popup>
+
   </div>
 </template>
 
@@ -106,7 +123,10 @@ export default {
       endTime:"",
       blockTimeArray:[["10:15","11:00"],["14:00","16:00"],["17:00","18:00"]],
       blockArray:[],
-      calendarIcon:"../assets/car.png"
+      calendarIcon:"../assets/car.png",
+      minDate:new Date(Date.now()),
+      currentDate: new Date(),
+      show: false
     };
   },
   computed: {
@@ -123,52 +143,120 @@ export default {
     }
   },
   created() {
-    let nowHour = new Date().getHours()
-    let nowMin = new Date().getMinutes()
-    let shouldMin
-    if(nowMin > 0 && nowMin<=15){
-      shouldMin = 15
-    }else if(nowMin > 15 && nowMin<=30){
-      shouldMin = 30
-    }
-    else if(nowMin > 30 && nowMin<=45){
-      shouldMin = 45
-    }else if(nowMin > 45 && nowMin<=60){
-      shouldMin = "00";
-      nowHour++;
-    }
-    let now = `${nowHour}:${shouldMin}`
-    console.log("now",now,nowHour)
-    if(nowHour > 9){
-      // this.blockTimeArray.push(["09:00",now])
-    }
-
-    // this.blockTimeArray.map(cur => {
-    //   if(nowHour > 9){
-    //     if(nowHour >= cur[0] && nowHour <=cur[1]){
-    //       this.blockTimeArray.push(["09:00",cur[0]])
-    //     }else if(nowHour > cur[1]){
-    //       this.blockTimeArray.push([cur[1],now])
-    //     }
-    //   }
-    // })
-    console.log(" this.blockTimeArray", this.blockTimeArray)
-    // this.top = (nowHour - 9 ) * 60 + nowMin
-    // this.top = timeTopMap.get(now)
-    console.log("this.top",this.top,now)
-    this.getStartAndEndTime()
-
-
+    // this.nowBeforeAddBlock()
   },
   mounted() {
     this.blockTimeArray.map(cur => {
       this.blockArray.push([timeTopMap.get(cur[0]),timeTopMap.get(cur[1])])
     })
-    // console.log("this.blockArray",this.blockArray)
+    console.log("this.blockArray",this.blockArray)
 
+    this.nowBeforeBlock()
+    this.getStartAndEndTime()
 
   },
   methods: {
+    showTimePicker(){
+      this.show = true
+    },
+    onConfirm(value){
+      console.log(value)
+      this.show = false
+    },
+    onCancel(){
+      this.show = false
+    },
+    formatter(type, val) {
+      if (type === 'year') {
+        return val + '年';
+      }
+      if (type === 'month') {
+        return val + '月';
+      }
+      if (type === 'day') {
+        return val + '日';
+      }
+      return val;
+    },
+    nowBeforeAddBlock(){
+      let nowHour = new Date().getHours()
+      let nowMin = new Date().getMinutes()
+      let shouldMin
+      if(nowMin > 0 && nowMin<=15){
+        shouldMin = 15
+      }else if(nowMin > 15 && nowMin<=30){
+        shouldMin = 30
+      }
+      else if(nowMin > 30 && nowMin<=45){
+        shouldMin = 45
+      }else if(nowMin > 45 && nowMin<=60){
+        shouldMin = "00";
+        nowHour++;
+      }
+      let now = `${nowHour}:${shouldMin}`
+      console.log("now",now,nowHour)
+
+      const nowTop = (nowHour - 9 ) * 60 + shouldMin
+      console.log("now  top",nowTop)
+
+      this.top = nowTop
+      if(nowHour > 9){
+        this.blockTimeArray.unshift(["09:00",now])
+      }
+    },
+    nowBeforeBlock(){
+      let nowHour = new Date().getHours()
+      let nowMin = new Date().getMinutes()
+      let shouldMin
+      if(nowMin > 0 && nowMin<=15){
+        shouldMin = 15
+      }else if(nowMin > 15 && nowMin<=30){
+        shouldMin = 30
+      }
+      else if(nowMin > 30 && nowMin<=45){
+        shouldMin = 45
+      }else if(nowMin > 45 && nowMin<=60){
+        shouldMin = "00";
+        nowHour++;
+      }
+      let now = `${nowHour}:${shouldMin}`
+      console.log("now",now,nowHour)
+
+      const nowTop = (nowHour - 9 ) * 60 + shouldMin
+      console.log("now  top",nowTop)
+
+      this.top = nowTop
+      let tempTime = nowTop
+      let res = [];
+      let restFlag = false
+      for(let item in this.blockArray){
+        const index = Number(item)
+        const cur =  this.blockArray[index]
+        if(tempTime <= cur[1]){
+          // 判断是否在禁止区域内
+          if(tempTime>=cur[0]){
+            res = [[0, cur[1]]]
+            restFlag = index+1
+            break;
+          }
+          else if(tempTime <cur[0]){
+            res =[[0, tempTime]]
+            restFlag = index
+            break;
+          }
+        }
+        else {
+          res = [[0, tempTime]]
+          restFlag = false
+        }
+      }
+      if(!!restFlag){
+        for(var i =restFlag ; i<this.blockArray.length;i++){
+          res = res.concat([this.blockArray[i]])
+        }
+      }
+      this.blockArray = res
+    },
     eHandler(data) {
       // console.log("data",data)
       this.width = data.width;
@@ -190,6 +278,7 @@ export default {
     },
     onClickLeft(){
       console.log("成功返回上一页")
+      this.$router.go(-1);
     },
     getStartAndEndTime(){
       console.log("111111",this.top,this.height)
@@ -218,9 +307,6 @@ export default {
         }
       }
     },
-    showTimePicker(){
-
-    }
 
   },
   filters: {
@@ -423,5 +509,14 @@ body, html {
   position: absolute;
   bottom: 1rem;
   right: 1rem;
+}
+.booking >>> .van-picker__cancel,.booking >>> .van-picker__confirm{
+  background: #CF251D;
+  color: #FFFFFF;
+  height: 70%;
+  margin: 0 3%;
+}
+.booking >>> .van-picker__toolbar{
+  border-bottom: 1px solid #BEBEBE;
 }
 </style>
